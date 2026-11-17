@@ -13,3 +13,7 @@ Audio/Video controls support compatible local MP4/WebM playback. Existing provid
 Direct authorized HTTPS downloads include progress/cancel, destination selection, duplicate checks, retry, byte-count validation and SHA-256 recording. Pause/resume and remote-source per-song actions are not implemented. YouTube/Spotify downloads remain unavailable.
 
 Native Windows 10/11 manual acceptance and provider integration tests remain outstanding. This is a preview, not a full-parity production certification.
+
+## Download status
+
+Windows x64 setup and portable EXEs are built, published and checksum verified. Both are unsigned preview builds. Download assets at https://github.com/Manojpraba27/BitChord-Windows/releases/tag/liquid-glass-preview . Build run: https://github.com/Manojpraba27/BitChord-Windows/actions/runs/44153427595 .

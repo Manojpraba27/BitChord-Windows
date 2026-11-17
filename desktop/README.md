@@ -23,7 +23,7 @@ npm run dist:win
 
 Outputs: `release/BitChord-Setup.exe` and `release/BitChord-Portable.exe`. The repository includes `.github/workflows/desktop-windows.yml`; run **Build BitChord for Windows** in GitHub Actions to reproduce the Windows build. This workflow was added locally, not pushed or executed on GitHub.
 
-For a signed public release, configure your own electron-builder signing credentials in CI. The supplied cross-built portable binary is unsigned. The standard installer could not finish here because Wine is absent; generate it on Windows with the commands above. The portable executable runs without installation but keeps its database/settings in the standard user-data directory; it is not a self-contained USB profile.
+For a signed public release, configure your own electron-builder signing credentials in CI. The supplied cross-built portable binary is unsigned. The setup installer and portable build now complete successfully on the Windows GitHub Actions runner. The portable executable runs without installation but keeps its database/settings in the standard user-data directory; it is not a self-contained USB profile.
 
 ## What is implemented
 
@@ -63,3 +63,5 @@ The desktop is based on repository commit `acf219a7e4a7f52f026d4336d5c7ac5cf7bfa
 ## Liquid Glass update
 
 Open **Appearance** for glass/classic light/dark/system themes, opacity, blur, accent, dynamic colors, reduced-motion/transparency, and lyrics typography/background controls. Default is Liquid Glass Dark. **Accounts → Spotify · official OAuth** requires a registered Spotify client ID and the redirect `http://127.0.0.1:43821/callback`; tokens remain in OS-encrypted storage. Google embedded sign-in is unavailable and returns an explanatory message. Consult docs/RELEASE-NOTES.md for current provider limitations.
+
+Download the current unsigned preview installer and portable at https://github.com/Manojpraba27/BitChord-Windows/releases/tag/liquid-glass-preview . Consult docs/TEST-REPORT.md for verified results and remaining manual checks.
