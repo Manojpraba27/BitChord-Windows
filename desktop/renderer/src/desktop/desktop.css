@@ -1,0 +1,241 @@
+.desktop-title {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding-left: 14px;
+  background: var(--pageBG);
+  border-bottom: 1px solid #8883;
+  -webkit-app-region: drag;
+  font:
+    600 12px "Segoe UI",
+    sans-serif;
+}
+.desktop-title img {
+  width: 18px;
+  height: 18px;
+}
+.desktop-title small {
+  font-weight: 400;
+  opacity: 0.5;
+  margin-left: 12px;
+}
+.window-actions {
+  margin-left: auto;
+  display: flex;
+  height: 100%;
+  -webkit-app-region: no-drag;
+}
+.window-actions button {
+  width: 46px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 19px;
+}
+.window-actions button:hover {
+  background: #8883;
+}
+.window-actions button:last-child:hover {
+  background: #c42b1c;
+  color: white;
+}
+#root {
+  height: calc(100% - 36px) !important;
+}
+.desktop-page {
+  padding: 42px 38px 110px;
+  max-width: 1240px;
+  margin: auto;
+}
+.desktop-page h1 {
+  font-size: 38px;
+  letter-spacing: -1.4px;
+  margin: 8px 0;
+}
+.desktop-eyebrow {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: #d75571;
+  font-weight: 700;
+}
+.desktop-subtitle {
+  opacity: 0.6;
+  margin: 10px 0 30px;
+}
+.desktop-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 24px 0;
+}
+.desktop-toolbar span {
+  margin-left: auto;
+  opacity: 0.5;
+}
+.desktop-page button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #8881;
+  border: 1px solid #8883;
+  border-radius: 8px;
+  padding: 9px 14px;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  margin: 4px 6px 4px 0;
+}
+.desktop-page button:hover {
+  background: #d7557122;
+  border-color: #d7557177;
+}
+.desktop-page button:disabled {
+  opacity: 0.4;
+  cursor: wait;
+}
+.desktop-card {
+  background: #88808;
+  border: 1px solid #8883;
+  border-radius: 16px;
+  padding: 25px;
+  margin: 18px 0;
+}
+.desktop-card h2 {
+  font-size: 19px;
+  margin: 0 0 14px;
+}
+.desktop-card p {
+  opacity: 0.65;
+  line-height: 1.7;
+  max-width: 720px;
+}
+.desktop-card small {
+  display: block;
+  opacity: 0.6;
+  overflow-wrap: anywhere;
+}
+.desktop-card label {
+  display: block;
+  margin: 16px 0;
+}
+.desktop-card input:not([type="checkbox"]):not([type="range"]),
+.desktop-card select {
+  display: block;
+  width: min(100%, 520px);
+  border: 1px solid #8884;
+  border-radius: 8px;
+  padding: 10px;
+  background: transparent;
+  color: inherit;
+  margin: 9px 0;
+}
+.desktop-card select option {
+  color: #18181b;
+}
+.desktop-check {
+  display: flex !important;
+  align-items: center;
+  gap: 12px;
+}
+.desktop-check input {
+  accent-color: #d75571;
+}
+.desktop-tracks {
+  border-top: 1px solid #8883;
+}
+.desktop-track {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid #8882;
+  padding: 8px 0;
+}
+.desktop-track > div {
+  flex: 1;
+  min-width: 0;
+}
+.desktop-track strong,
+.desktop-track small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.desktop-track small {
+  opacity: 0.5;
+  margin-top: 5px;
+}
+.desktop-track button {
+  padding: 8px;
+  border-color: transparent;
+  background: transparent;
+}
+.desktop-track > span {
+  font-variant-numeric: tabular-nums;
+  opacity: 0.5;
+}
+.desktop-empty {
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  border: 1px dashed #8884;
+  border-radius: 16px;
+  color: #888;
+}
+.desktop-message,
+.desktop-error {
+  padding: 14px;
+  background: #d7557122;
+  border: 1px solid #d7557144;
+  border-radius: 9px;
+  white-space: pre-wrap;
+}
+.desktop-error {
+  position: fixed;
+  right: 20px;
+  top: 46px;
+  z-index: 9999;
+  max-width: 600px;
+  background: #301a25;
+  color: white;
+}
+.desktop-error button {
+  margin-left: 14px;
+}
+.desktop-eq {
+  display: flex;
+  gap: 18px;
+}
+.desktop-eq label {
+  flex: 1;
+  font-size: 12px;
+}
+.desktop-eq input {
+  width: 100%;
+  display: block;
+  margin: 18px 0;
+  accent-color: #d75571;
+}
+.desktop-eq span {
+  opacity: 0.5;
+}
+.desktop-page a {
+  color: #d75571;
+  display: inline-block;
+  margin: 12px;
+}
+progress {
+  width: 100%;
+  accent-color: #d75571;
+}
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid #d75571;
+  outline-offset: 3px;
+}
