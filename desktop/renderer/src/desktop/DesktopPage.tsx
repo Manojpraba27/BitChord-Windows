@@ -1,3 +1,4 @@
+import {MediaMode} from './MediaMode';
 import {SpotifyConnection} from './SpotifyConnection';
 import {PlaylistEditor} from './PlaylistEditor';
 import { useEffect, useState } from "react";
@@ -697,7 +698,7 @@ export default function DesktopPage() {
         <div className="desktop-card">
           {current ? (
             <>
-              <h2>{current.title}</h2>
+              <h2>{current.title}</h2><MediaMode/>
               <p>{current.artist}</p>
               <button onClick={() => useUi.getState().setFullScreen(true)}>
                 Open full-screen player & lyrics

@@ -24,6 +24,8 @@ jobs:
       - run: node node_modules/electron/install.js
       - run: npm test
       - name: Build Windows application
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
         shell: pwsh
         run: |
           npm run dist:win 2>&1 | Tee-Object -FilePath windows-build.log
@@ -34,8 +36,6 @@ jobs:
           name: windows-build-diagnostics
           path: desktop/windows-build.log
 
-        env:
-          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
       - name: Verify executables and create checksums
         shell: pwsh
         run: |

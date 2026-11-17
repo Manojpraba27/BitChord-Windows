@@ -39,6 +39,8 @@ export async function mediaResponse(request: Request, file: string) {
     });
   }
   const mime: Record<string, string> = {
+    ".mp4": "video/mp4",
+    ".webm": "video/webm",
     ".mp3": "audio/mpeg",
     ".flac": "audio/flac",
     ".wav": "audio/wav",

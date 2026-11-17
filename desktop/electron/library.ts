@@ -12,6 +12,8 @@ export const extensions = new Set([
   ".ogg",
   ".opus",
   ".aac",
+  ".mp4",
+  ".webm",
 ]);
 export async function importFiles(files: string[]) {
   const { parseFile } = await import("music-metadata");
