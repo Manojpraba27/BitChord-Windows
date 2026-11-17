@@ -6,7 +6,7 @@ on:
   pull_request:
     paths: ['desktop/**', '.github/workflows/desktop-windows.yml']
 permissions:
-  contents: read
+  contents: write
 jobs:
   windows:
     runs-on: windows-latest
@@ -55,3 +55,21 @@ jobs:
             desktop/release/BitChord-Portable.exe
             desktop/release/SHA256SUMS.txt
           if-no-files-found: error
+
+      - name: Publish downloadable preview or diagnostics
+        if: always()
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $repo = '${{ github.repository }}'
+          $tag = 'liquid-glass-preview'
+          gh release view $tag --repo $repo 2>$null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create $tag --repo $repo --target '${{ github.sha }}' --title 'BitChord Liquid Glass Preview' --prerelease --notes 'Unsigned preview. Native Windows manual acceptance and real provider integrations remain unverified. See source documentation for limitations.'
+          }
+          if (Test-Path windows-build.log) { gh release upload $tag windows-build.log --repo $repo --clobber }
+          if (Test-Path release/SHA256SUMS.txt) {
+            gh release upload $tag release/BitChord-Portable.exe release/BitChord-Setup.exe release/SHA256SUMS.txt --repo $repo --clobber
+            if ($LASTEXITCODE -ne 0) { throw 'Release upload failed' }
+          }

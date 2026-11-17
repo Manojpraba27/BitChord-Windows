@@ -111,6 +111,18 @@ async function launch() {
   }
   const saved=await page.evaluate(track=>window.desktop.call('savePlaylist',{title:'Verification playlist',tracks:[track]}),result.tracks[0]);assert.equal(saved.length,1);
   console.log('PLAYLIST: saved real imported track');
+  await page.getByRole('link',{name:'My Playlists',exact:true}).click();
+  await page.getByRole('button',{name:'Edit playlist',exact:true}).click();
+  await page.getByLabel('Edit playlist name',{exact:true}).fill('Edited verification playlist');
+  await page.getByRole('button',{name:'Save changes',exact:true}).click();
+  await page.getByRole('heading',{name:'Edited verification playlist',exact:true}).waitFor();
+  console.log('PLAYLIST EDITOR: renamed and saved through UI');
+  await page.getByRole('link',{name:'Appearance',exact:true}).click();
+  await page.getByRole('heading',{name:'Appearance',exact:true}).waitFor();
+  await page.getByLabel('Reduce motion',{exact:true}).check();
+  assert.equal(await page.evaluate(()=>document.documentElement.dataset.reduceMotion),'true');
+  console.log('APPEARANCE: reduced-motion preference applied through UI');
+
   const rejected = await page.evaluate(() =>
     window.desktop.call("setting", { key: "unexpected", value: true }).then(
       () => false,
