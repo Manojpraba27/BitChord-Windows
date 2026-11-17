@@ -1,3 +1,4 @@
+import * as spotifyOAuth from './spotifyOAuth';
 import { randomUUID } from "node:crypto";
 import { authState } from "../vendor/ytAuth";
 import { mediaResponse } from "./media";
@@ -180,9 +181,13 @@ async function desktop(method: string, p: any) {
     case "cancelDownload":
       cancelDownload(text(p.id, 100));
       return;
+    case "spotifyConnect":
+      return spotifyOAuth.connect(text(p.clientId,64));
+    case "spotifyDisconnect":return spotifyOAuth.disconnect();
     case "signIn":
       if (!["youtube", "spotify"].includes(p.service))
         throw Error("Unknown service");
+      if(p.service=== "spotify") return spotifyOAuth.connect(store.get("spotifyClientId", ""));
       signIn(p.service);
       return;
     case "logout":
@@ -269,8 +274,8 @@ async function createWindow() {
         u.hostname === "music.youtube.com" ||
         u.hostname === "accounts.google.com"
       )
-        signIn("youtube");
-      else if (u.hostname.endsWith("spotify.com")) signIn("spotify");
+        void shell.openExternal("https://music.youtube.com/");
+      else if (u.hostname.endsWith("spotify.com")) void shell.openExternal(url);
       else void shell.openExternal(url);
     }
     return { action: "deny" };

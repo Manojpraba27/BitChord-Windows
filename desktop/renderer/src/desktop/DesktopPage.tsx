@@ -1,3 +1,4 @@
+import {SpotifyConnection} from './SpotifyConnection';
 import {PlaylistEditor} from './PlaylistEditor';
 import { useEffect, useState } from "react";
 import { useLocation, Link } from "react-router";
@@ -544,7 +545,7 @@ export default function DesktopPage() {
       {route === "/integrations" && (
         <>
           <div className="desktop-card">
-            <h2>YouTube Music & Spotify</h2>
+            <h2>Account connections</h2><SpotifyConnection/>
             <p>
               Sign in in an isolated account window. BitChord keeps session
               cookies outside the renderer. Provider login restrictions may

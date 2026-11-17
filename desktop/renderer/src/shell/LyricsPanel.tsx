@@ -33,7 +33,7 @@ type AmLyricsElement = HTMLElement & {
 const HIDE_FOOTER = '.lyrics-footer { visibility: hidden !important; pointer-events: none !important; }';
 
 /** The phone's lyric typeface (@font-face in styles/global.css), then the app's. */
-const LYRIC_FONT = "'BitChord SF Pro Display', 'DM Sans', system-ui, sans-serif";
+const LYRIC_FONT = "'BitChord SF Pro Display', 'Nirmala UI', 'Noto Sans Tamil', 'Noto Sans Devanagari', 'Noto Sans Malayalam', system-ui, sans-serif";
 
 let lyricFont: Promise<void> | null = null;
 let lyricFontLoaded = false;
@@ -109,7 +109,7 @@ function LyricsView({ ttml, full }: { ttml: string; full: boolean }) {
     el.ttml = ttml;
     el.interpolate = true;
     el.autoScroll = true;
-    el.highlightColor = '#ffffff';
+    el.highlightColor = getComputedStyle(document.documentElement).getPropertyValue('--lyric-ink').trim() || '#fff';
     el.fontFamily = LYRIC_FONT;
     el.className = 'block min-h-0 flex-1 overflow-hidden [--am-lyrics-highlight-color:#fff]';
     el.toggleAttribute('data-full', full);
@@ -125,7 +125,7 @@ function LyricsView({ ttml, full }: { ttml: string; full: boolean }) {
       const root = el.shadowRoot;
       if (!root) return;
       const sheet = new CSSStyleSheet();
-      sheet.replaceSync(HIDE_FOOTER + FAR_LINES + FULL_SIZE);
+      sheet.replaceSync(HIDE_FOOTER + FAR_LINES + FULL_SIZE + ':host {color:var(--lyric-ink,#fff);--am-lyrics-highlight-color:var(--lyric-ink,#fff);font-size:var(--bitchord-lyric-size,30px)} .lyrics-line{color:var(--lyric-ink,#fff)!important;opacity:.75!important} .lyrics-line.active{opacity:1!important;text-shadow:0 0 18px color-mix(in srgb,var(--desktop-accent) 25%,transparent)}');
       root.adoptedStyleSheets = [...root.adoptedStyleSheets, sheet];
       // The full-screen column fades its top edge, but am-lyrics' toolbar
       // (romanize, translate, download) sits at the top of the same scroller
@@ -367,8 +367,7 @@ function CanvasBackdrop({ url }: { url: string }) {
 
 const panel = 'group/panel relative isolate flex min-h-0 flex-1 flex-col overflow-hidden';
 // The full-screen player's column (report §7): lines 26px, then 30px from 980px, 36px from 1320px and 42px from 1680px.
-const fullSizes =
-  '[--bitchord-lyric-size:26px] min-[980px]:[--bitchord-lyric-size:30px] min-[1320px]:[--bitchord-lyric-size:36px] min-[1680px]:[--bitchord-lyric-size:42px]';
+const fullSizes = '';
 
 /**
  * The lyrics, with their provider picker and empty states: the side panel
@@ -393,7 +392,7 @@ export function LyricsPanel({ variant = 'panel' }: { variant?: 'panel' | 'full' 
   const emptyTitle = full ? 'type-title-1-emphasized text-primary' : 'type-[600_12px/16px]';
 
   return (
-    <div className={full ? `${panel} ${fullSizes}` : panel}>
+    <div className={`lyrics-glass ${full ? `${panel} ${fullSizes}` : panel}`}>
       {canvas && variant === 'panel' && <CanvasBackdrop url={canvas} />}
       <ProviderPicker current={result?.source ?? null} full={full} />
       {/* Only worth raising when nothing was found: then the hosts behind the extension might have it. */}

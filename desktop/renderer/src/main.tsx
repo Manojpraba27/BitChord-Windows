@@ -1,6 +1,7 @@
 import { DesktopChrome } from '@/desktop/Chrome';
 import '@/desktop/desktop.css';
-document.documentElement.dataset.theme = localStorage.getItem('bitchord:theme') || 'system';
+import {applyAppearance} from '@/desktop/appearance';
+applyAppearance();
 import { QueryClientProvider } from '@tanstack/react-query';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -18,3 +19,5 @@ createRoot(document.getElementById('root')!).render(
     </QueryClientProvider>
   </StrictMode>,
 );
+
+import '@/desktop/liquid.css';

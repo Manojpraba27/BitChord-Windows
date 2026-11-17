@@ -25,6 +25,7 @@ export async function startDownload(
     throw Error("Three downloads are already running. Wait or cancel one.");
   if (!permitted) throw Error("Confirm that the source permits downloading.");
   const checked = await validateDownloadUrl(url);
+  if(store.downloads().some(j=>j.url===url&&['complete','downloading'].includes(j.status)))throw Error('This file is already downloaded or downloading.');
   const ext = path.extname(checked.url.pathname).toLowerCase();
   if (!extensions.has(ext))
     throw Error("URL must point directly to a supported audio file.");
@@ -41,6 +42,7 @@ export async function startDownload(
   );
   const job = {
     id,
+    url,
     title: path.basename(file),
     status: "downloading",
     received: 0,

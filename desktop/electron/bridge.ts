@@ -1,6 +1,6 @@
 import * as yt from "../vendor/ytAuth";
 import { ytFetch } from "../vendor/ytFetch";
-import * as spotify from "../vendor/spotify";
+import * as spotify from "./spotifyOAuth";
 import { lyricsFetch, grantedOrigins } from "../vendor/lyricsFetch";
 import { BRIDGE_PROTOCOL } from "../shared/src/bridge/protocol";
 import { text } from "./security.mjs";
@@ -33,12 +33,11 @@ export async function bridge(method: string, p: any) {
     case "lyrics.requestPermissions":
       return {};
     case "spotify.authState":
-      if (p.refresh) spotify.invalidateSession();
       return spotify.authState();
     case "spotify.setConnected":
-      return spotify.setConnected(p.connected === true);
+      return p.connected ? spotify.authState() : spotify.disconnect();
     case "spotify.signIn":
-      signIn("spotify");
+      await spotify.connect((await import("./store")).get("spotifyClientId", ""));
       return {};
     case "spotify.playlists":
       return spotify.playlists(Number(p.offset) || 0);
@@ -49,7 +48,7 @@ export async function bridge(method: string, p: any) {
     case "spotify.searchTracks":
       return spotify.searchTracks(text(p.query, 300));
     case "spotify.canvas":
-      return { url: await spotify.canvas(text(p.trackId, 200)) };
+      return { url: await spotify.canvas() };
     default:
       throw Error("Unsupported bridge method: " + method);
   }

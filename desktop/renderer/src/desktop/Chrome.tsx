@@ -1,9 +1,13 @@
+import {useArtworkColor} from '@/lib/artworkColor';
+import {loadAppearance} from './appearance';
 import { useEffect, useState } from "react";
 import { native } from "./api";
 import { usePlayer } from "@/state/player";
 import { applyAudio } from "./audio";
 export function DesktopChrome() {
   const [error, setError] = useState("");
+  const art=usePlayer(s=>s.nowPlaying?.artworkUrl);const color=useArtworkColor(art);
+  useEffect(()=>{if(loadAppearance().dynamic&&color)document.documentElement.style.setProperty('--ambient-color',color.background);},[color]);
   useEffect(() => {
     const off = native.on("media", (cmd) => {
       const s = usePlayer.getState();

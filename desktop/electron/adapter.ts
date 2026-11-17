@@ -38,35 +38,9 @@ export async function desktopFetch(input: any, init: any = {}) {
     signal: AbortSignal.timeout(20000),
   });
 }
-export function signIn(service: string) {
-  const spotify = service === "spotify";
-  const w = new BrowserWindow({
-    width: 520,
-    height: 760,
-    title: spotify ? "Spotify sign in" : "YouTube Music sign in",
-    webPreferences: {
-      partition: "persist:bitchord-auth",
-      sandbox: true,
-      contextIsolation: true,
-      nodeIntegration: false,
-    },
-  });
-  w.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
-  w.webContents.on("will-navigate", (e, url) => {
-    const u = new URL(url);
-    if (
-      u.protocol !== "https:" ||
-      !(
-        spotify ? /(^|\.)spotify\.com$/ : /(^|\.)(google\.com|youtube\.com)$/
-      ).test(u.hostname)
-    )
-      e.preventDefault();
-  });
-  void w.loadURL(
-    spotify
-      ? "https://accounts.spotify.com/login?continue=https%3A%2F%2Fopen.spotify.com%2F"
-      : "https://accounts.google.com/ServiceLogin?service=youtube&continue=https%3A%2F%2Fmusic.youtube.com",
-  );
+export function signIn(service:string){
+ if(service==='spotify')throw Error('Use Accounts → Spotify OAuth with a registered client ID.');
+ throw Error('Google may block sign-in in embedded browsers. BitChord cannot transfer a system-browser Google session or use official YouTube Music library OAuth. Continue signed out, or use music.youtube.com in your browser. No Google password is collected.');
 }
 export const browser: any = {
   storage: {
