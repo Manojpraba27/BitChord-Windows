@@ -1,2 +1,125 @@
-import {useState} from 'react';import {loadAppearance,saveAppearance} from './appearance';
-export default function AppearancePage(){const[p,setP]=useState(loadAppearance);function change(key:string,value:unknown){const next={...p,[key]:value};setP(next);saveAppearance(next);}return <section className="desktop-page"><div className="desktop-eyebrow">MAKE IT YOURS</div><h1>Appearance</h1><p className="desktop-subtitle">Liquid glass, with clarity at the center.</p><div className="desktop-card"><h2>Surfaces & color</h2><label>Theme<select value={p.theme} onChange={e=>change('theme',e.target.value)}>{['glass-dark','glass-light','classic-dark','classic-light','system'].map(v=><option key={v} value={v}>{v.replaceAll('-',' ')}</option>)}</select></label>{[['transparency','Glass opacity',60,100],['blur','Backdrop blur',0,32],['motion','Animation intensity',0,1]].map(([k,label,min,max])=><label key={k}>{label}<input type="range" min={min} max={max} value={p[k as keyof typeof p] as number} onChange={e=>change(String(k),Number(e.target.value))}/></label>)}<label>Accent color<input type="color" value={p.accent} onChange={e=>change('accent',e.target.value)}/></label>{[['dynamic','Dynamic album colors'],['reducedMotion','Reduce motion'],['reducedTransparency','Reduce transparency']].map(([k,label])=><label className="desktop-check" key={k}><input type="checkbox" checked={p[k as keyof typeof p] as boolean} onChange={e=>change(k!,e.target.checked)}/>{label}</label>)}</div><div className="desktop-card"><h2>Readable lyrics</h2><label>Lyrics theme<select value={p.lyricsTheme} onChange={e=>change('lyricsTheme',e.target.value)}><option value="dark">Dark</option><option value="light">Light</option></select></label><label>Font size · {p.lyricsSize}px<input type="range" min="20" max="48" value={p.lyricsSize} onChange={e=>change('lyricsSize',Number(e.target.value))}/></label><label>Background opacity<input type="range" min="80" max="100" value={p.lyricsOpacity} onChange={e=>change('lyricsOpacity',Number(e.target.value))}/></label><label className="desktop-check"><input type="checkbox" checked={p.solidLyrics} onChange={e=>change('solidLyrics',e.target.checked)}/>Solid lyrics background</label><div className="lyrics-glass preview-lyrics">தமிழ் · हिन्दी · മലയാളം · English<br/>Readable over every album cover.</div></div></section>;}
+import { useState } from "react";
+import { loadAppearance, saveAppearance } from "./appearance";
+export default function AppearancePage() {
+  const [p, setP] = useState(loadAppearance);
+  function change(key: string, value: unknown) {
+    const next = { ...p, [key]: value };
+    setP(next);
+    saveAppearance(next);
+  }
+  return (
+    <section className="desktop-page">
+      <div className="desktop-eyebrow">MAKE IT YOURS</div>
+      <h1>Appearance</h1>
+      <p className="desktop-subtitle">
+        Liquid glass, with clarity at the center.
+      </p>
+      <div className="desktop-card">
+        <h2>Surfaces & color</h2>
+        <label>
+          Theme
+          <select
+            value={p.theme}
+            onChange={(e) => change("theme", e.target.value)}
+          >
+            {[
+              "glass-dark",
+              "glass-light",
+              "classic-dark",
+              "classic-light",
+              "system",
+            ].map((v) => (
+              <option key={v} value={v}>
+                {v.replaceAll("-", " ")}
+              </option>
+            ))}
+          </select>
+        </label>
+        {[
+          ["transparency", "Glass opacity", 60, 100],
+          ["blur", "Backdrop blur", 0, 32],
+          ["motion", "Animation intensity", 0, 1],
+        ].map(([k, label, min, max]) => (
+          <label key={k}>
+            {label}
+            <input
+              type="range"
+              min={min}
+              max={max}
+              value={p[k as keyof typeof p] as number}
+              onChange={(e) => change(String(k), Number(e.target.value))}
+            />
+          </label>
+        ))}
+        <label>
+          Accent color
+          <input
+            type="color"
+            value={p.accent}
+            onChange={(e) => change("accent", e.target.value)}
+          />
+        </label>
+        {[
+          ["dynamic", "Dynamic album colors"],
+          ["reducedMotion", "Reduce motion"],
+          ["reducedTransparency", "Reduce transparency"],
+        ].map(([k, label]) => (
+          <label className="desktop-check" key={k}>
+            <input
+              type="checkbox"
+              checked={p[k as keyof typeof p] as boolean}
+              onChange={(e) => change(k!, e.target.checked)}
+            />
+            {label}
+          </label>
+        ))}
+      </div>
+      <div className="desktop-card">
+        <h2>Readable lyrics</h2>
+        <label>
+          Lyrics theme
+          <select
+            value={p.lyricsTheme}
+            onChange={(e) => change("lyricsTheme", e.target.value)}
+          >
+            <option value="dark">Dark</option>
+            <option value="light">Light</option>
+          </select>
+        </label>
+        <label>
+          Font size · {p.lyricsSize}px
+          <input
+            type="range"
+            min="20"
+            max="48"
+            value={p.lyricsSize}
+            onChange={(e) => change("lyricsSize", Number(e.target.value))}
+          />
+        </label>
+        <label>
+          Background opacity
+          <input
+            type="range"
+            min="80"
+            max="100"
+            value={p.lyricsOpacity}
+            onChange={(e) => change("lyricsOpacity", Number(e.target.value))}
+          />
+        </label>
+        <label className="desktop-check">
+          <input
+            type="checkbox"
+            checked={p.solidLyrics}
+            onChange={(e) => change("solidLyrics", e.target.checked)}
+          />
+          Solid lyrics background
+        </label>
+        <div className="lyrics-glass preview-lyrics">
+          தமிழ் · हिन्दी · മലയാളം · English
+          <br />
+          Readable over every album cover.
+        </div>
+      </div>
+    </section>
+  );
+}

@@ -1,11 +1,15 @@
-# BitChord Windows release candidate
+# Liquid Glass desktop update
 
-Preserves the original Android source and reuses the original React player. Adds Electron IPC, Windows integration code, SQLite persistence, local playback, playlists, downloads and desktop settings.
+The existing desktop renderer now includes default Liquid Glass Dark, glass/classic light and dark modes, system appearance, opacity/blur/accent controls, reduced motion/transparency settings, and saved lyrics font size, opacity and solid/light/dark background choices.
 
-Portable executable: available, unsigned. Source archive: available. Installer: blocked; no valid BitChord-Setup.exe is supplied.
+Lyrics have a separate contrast-protected panel and multilingual font fallbacks. Existing synchronized scrolling and manual interactions are retained. Font availability depends on installed Windows language fonts.
 
-Not ready for a general production release: live integrations and native Windows tests remain outstanding; consult FEATURE-PARITY.md and TEST-REPORT.md.
+Spotify uses official Authorization Code with PKCE, system-browser login, state validation, loopback redirect, encrypted tokens, refresh and logout. You must register a Spotify client ID and http://127.0.0.1:43821/callback. API access/development-account restrictions apply. Real-account authorization remains unverified.
 
-To unblock: authenticate GitHub CLI with repository write/Actions access, push this local desktop directory and .github/workflows/desktop-windows.yml to a repository you control, then run the workflow 'Build BitChord for Windows'. Download its BitChord-Windows-x64 artifact. Alternatively run npm ci, node node_modules/electron/install.js, npm run dist:win from desktop on Windows with Node 24. Test installation/uninstallation on Windows 10 and 11 before publishing.
+Google embedded sign-in is removed from the desktop connection action because it can fail or be blocked. A useful limitation error replaces the blank window. Official YouTube Music account/library OAuth and transferable system-browser cookies are not available here; use the provider website for account listening. No Google passwords are collected.
 
-Direct attachments cannot currently be exposed from this workspace. No GitHub artifact or release URL exists for these local changes. All available files are under /workspace/work/deliverables/.
+Audio/Video controls support compatible local MP4/WebM playback. Existing provider playback remains inherited and unverified; no new protected-media download or extraction feature was added.
+
+Direct authorized HTTPS downloads include progress/cancel, destination selection, duplicate checks, retry, byte-count validation and SHA-256 recording. Pause/resume and remote-source per-song actions are not implemented. YouTube/Spotify downloads remain unavailable.
+
+Native Windows 10/11 manual acceptance and provider integration tests remain outstanding. This is a preview, not a full-parity production certification.

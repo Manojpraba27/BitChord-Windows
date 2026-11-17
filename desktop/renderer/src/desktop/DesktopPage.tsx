@@ -367,6 +367,8 @@ export default function DesktopPage() {
               </p>
               <progress value={j.received} max={j.total || undefined} />
               {j.error && <p>{j.error}</p>}
+              {j.sha256&&<small>SHA-256: {j.sha256}</small>}
+              {['failed','cancelled'].includes(j.status)&&j.url&&<button onClick={()=>void run(async()=>{await native.call('download',{url:j.url,permitted:true});await refresh();},'Retry started')}>Retry download</button>}
               {j.status === "downloading" && (
                 <button
                   onClick={() =>

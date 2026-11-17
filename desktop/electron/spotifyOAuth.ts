@@ -1,15 +1,223 @@
-import {randomBytes,createHash,timingSafeEqual} from 'node:crypto';import {createServer} from 'node:http';import {shell} from 'electron';import * as store from './store';
-const redirect='http://127.0.0.1:43821/callback';let pending=false;
-import {challenge,validState} from './pkce';
-async function token(body:Record<string,string>){const r=await fetch('https://accounts.spotify.com/api/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(body),signal:AbortSignal.timeout(20000)});if(!r.ok)throw Error(`Spotify authorization failed (HTTP ${r.status}). Check your client ID and registered redirect URI.`);const t:any=await r.json();store.secret('spotifyOAuth',JSON.stringify({...t,refresh_token:t.refresh_token||JSON.parse(store.secret('spotifyOAuth')||'{}').refresh_token,expiresAt:Date.now()+t.expires_in*1000}));return t;}
-export async function connect(clientId:string){if(!/^[a-zA-Z0-9]{16,64}$/.test(clientId))throw Error('Enter a registered Spotify client ID. Register '+redirect+' as its redirect URI.');if(pending)throw Error('Spotify authorization is already waiting in your browser.');pending=true;store.set('spotifyClientId',clientId);const verifier=randomBytes(48).toString('base64url'),state=randomBytes(32).toString('base64url');
-try{await new Promise<void>((resolve,reject)=>{const server=createServer((req,res)=>{const u=new URL(req.url||'/ ',redirect);if(u.pathname!=='/callback'){res.writeHead(404).end();return;}if(!validState(u.searchParams.get('state'),state)){res.writeHead(400).end('Invalid authorization state');return;}const code=u.searchParams.get('code');res.setHeader('Content-Type','text/plain; charset=utf-8');if(!code){res.end('Authorization cancelled. Return to BitChord.');finish(Error('Spotify authorization was cancelled.'));return;}res.end('Authorization received. Return to BitChord.');void token({grant_type:'authorization_code',code,redirect_uri:redirect,client_id:clientId,code_verifier:verifier}).then(()=>finish(),finish);});const timer=setTimeout(()=>finish(Error('Spotify authorization timed out. Retry connection.')),180000);const finish=(e?:unknown)=>{clearTimeout(timer);server.close();e?reject(e):resolve();};server.on('error',finish);server.listen(43821,'127.0.0.1',()=>{const url=new URL('https://accounts.spotify.com/authorize');url.search=new URLSearchParams({client_id:clientId,response_type:'code',redirect_uri:redirect,code_challenge_method:'S256',code_challenge:challenge(verifier),state,scope:'user-read-private playlist-read-private playlist-read-collaborative user-library-read'}).toString();void shell.openExternal(url.href).catch(finish);});});}finally{pending=false;}}
-async function api(route:string){const saved=JSON.parse(store.secret('spotifyOAuth')||'null');if(!saved)throw Error('Connect Spotify with your registered client ID first.');const t=Date.now()>saved.expiresAt-30000?await token({grant_type:'refresh_token',refresh_token:saved.refresh_token,client_id:store.get('spotifyClientId')}):saved;const r=await fetch('https://api.spotify.com/v1/'+route,{headers:{Authorization:'Bearer '+t.access_token},signal:AbortSignal.timeout(20000)});if(r.status===401){store.removeSecret('spotifyOAuth');throw Error('Spotify session expired. Reconnect.');}if(!r.ok)throw Error(`Spotify API HTTP ${r.status}. Account, development-mode and endpoint restrictions may apply.`);return r.json() as Promise<any>;}
-export async function authState(){if(!store.secret('spotifyOAuth'))return {browserSignedIn:false,connected:false,signedIn:false,user:null,problem:null};try{const p=await api('me');return {browserSignedIn:true,connected:true,signedIn:true,user:{name:p.display_name||p.id,imageUrl:p.images?.[0]?.url||null},problem:null};}catch(e){return {browserSignedIn:false,connected:false,signedIn:false,user:null,problem:String(e)};}}
-function track(t:any){return {id:t.id,title:t.name,artist:t.artists?.map((a:any)=>a.name).join(', ')||'',album:t.album?.name||'',durationMs:t.duration_ms||0,imageUrl:t.album?.images?.[0]?.url||null};}
-export async function playlists(offset=0){const p=await api('me/playlists?limit=50&offset='+offset);return {items:p.items.filter(Boolean).map((p:any)=>({id:p.id,name:p.name,owner:p.owner?.display_name||null,imageUrl:p.images?.[0]?.url||null,total:p.tracks?.total||0})),total:p.total,raw:p.items.length};}
-export async function tracks(id:string,offset=0){const p=await api((id==='liked'?'me/tracks':'playlists/'+encodeURIComponent(id)+'/tracks')+'?limit=50&offset='+offset);return {items:p.items.filter((i:any)=>i.track?.id).map((i:any)=>track(i.track)),total:p.total,raw:p.items.length};}
-export async function playlistInfo(id:string){const p=await api('playlists/'+encodeURIComponent(id));return {name:p.name,owner:p.owner?.display_name||null,imageUrl:p.images?.[0]?.url||null,total:p.tracks?.total||0};}
-export async function searchTracks(query:string){const p=await api('search?type=track&limit=10&q='+encodeURIComponent(query));return p.tracks.items.map(track);}
-export async function canvas(){return null;}
-export function disconnect(){store.removeSecret('spotifyOAuth');return authState();}
+import { randomBytes, createHash, timingSafeEqual } from "node:crypto";
+import { createServer } from "node:http";
+import { shell } from "electron";
+import * as store from "./store";
+const redirect = "http://127.0.0.1:43821/callback";
+let pending = false;
+import { challenge, validState } from "./pkce";
+async function token(body: Record<string, string>) {
+  const r = await fetch("https://accounts.spotify.com/api/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams(body),
+    signal: AbortSignal.timeout(20000),
+  });
+  if (!r.ok)
+    throw Error(
+      `Spotify authorization failed (HTTP ${r.status}). Check your client ID and registered redirect URI.`,
+    );
+  const t: any = await r.json();
+  store.secret(
+    "spotifyOAuth",
+    JSON.stringify({
+      ...t,
+      refresh_token:
+        t.refresh_token ||
+        JSON.parse(store.secret("spotifyOAuth") || "{}").refresh_token,
+      expiresAt: Date.now() + t.expires_in * 1000,
+    }),
+  );
+  return t;
+}
+export async function connect(clientId: string) {
+  if (!/^[a-zA-Z0-9]{16,64}$/.test(clientId))
+    throw Error(
+      "Enter a registered Spotify client ID. Register " +
+        redirect +
+        " as its redirect URI.",
+    );
+  if (pending)
+    throw Error("Spotify authorization is already waiting in your browser.");
+  pending = true;
+  store.set("spotifyClientId", clientId);
+  const verifier = randomBytes(48).toString("base64url"),
+    state = randomBytes(32).toString("base64url");
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const server = createServer((req, res) => {
+        const u = new URL(req.url || "/ ", redirect);
+        if (u.pathname !== "/callback") {
+          res.writeHead(404).end();
+          return;
+        }
+        if (!validState(u.searchParams.get("state"), state)) {
+          res.writeHead(400).end("Invalid authorization state");
+          return;
+        }
+        const code = u.searchParams.get("code");
+        res.setHeader("Content-Type", "text/plain; charset=utf-8");
+        if (!code) {
+          res.end("Authorization cancelled. Return to BitChord.");
+          finish(Error("Spotify authorization was cancelled."));
+          return;
+        }
+        res.end("Authorization received. Return to BitChord.");
+        void token({
+          grant_type: "authorization_code",
+          code,
+          redirect_uri: redirect,
+          client_id: clientId,
+          code_verifier: verifier,
+        }).then(() => finish(), finish);
+      });
+      const timer = setTimeout(
+        () =>
+          finish(Error("Spotify authorization timed out. Retry connection.")),
+        180000,
+      );
+      const finish = (e?: unknown) => {
+        clearTimeout(timer);
+        server.close();
+        e ? reject(e) : resolve();
+      };
+      server.on("error", finish);
+      server.listen(43821, "127.0.0.1", () => {
+        const url = new URL("https://accounts.spotify.com/authorize");
+        url.search = new URLSearchParams({
+          client_id: clientId,
+          response_type: "code",
+          redirect_uri: redirect,
+          code_challenge_method: "S256",
+          code_challenge: challenge(verifier),
+          state,
+          scope:
+            "user-read-private playlist-read-private playlist-read-collaborative user-library-read",
+        }).toString();
+        void shell.openExternal(url.href).catch(finish);
+      });
+    });
+  } finally {
+    pending = false;
+  }
+}
+async function api(route: string) {
+  const saved = JSON.parse(store.secret("spotifyOAuth") || "null");
+  if (!saved)
+    throw Error("Connect Spotify with your registered client ID first.");
+  const t =
+    Date.now() > saved.expiresAt - 30000
+      ? await token({
+          grant_type: "refresh_token",
+          refresh_token: saved.refresh_token,
+          client_id: store.get("spotifyClientId"),
+        })
+      : saved;
+  const r = await fetch("https://api.spotify.com/v1/" + route, {
+    headers: { Authorization: "Bearer " + t.access_token },
+    signal: AbortSignal.timeout(20000),
+  });
+  if (r.status === 401) {
+    store.removeSecret("spotifyOAuth");
+    throw Error("Spotify session expired. Reconnect.");
+  }
+  if (!r.ok)
+    throw Error(
+      `Spotify API HTTP ${r.status}. Account, development-mode and endpoint restrictions may apply.`,
+    );
+  return r.json() as Promise<any>;
+}
+export async function authState() {
+  if (!store.secret("spotifyOAuth"))
+    return {
+      browserSignedIn: false,
+      connected: false,
+      signedIn: false,
+      user: null,
+      problem: null,
+    };
+  try {
+    const p = await api("me");
+    return {
+      browserSignedIn: true,
+      connected: true,
+      signedIn: true,
+      user: {
+        name: p.display_name || p.id,
+        imageUrl: p.images?.[0]?.url || null,
+      },
+      problem: null,
+    };
+  } catch (e) {
+    return {
+      browserSignedIn: false,
+      connected: false,
+      signedIn: false,
+      user: null,
+      problem: String(e),
+    };
+  }
+}
+function track(t: any) {
+  return {
+    id: t.id,
+    title: t.name,
+    artist: t.artists?.map((a: any) => a.name).join(", ") || "",
+    album: t.album?.name || "",
+    durationMs: t.duration_ms || 0,
+    imageUrl: t.album?.images?.[0]?.url || null,
+  };
+}
+export async function playlists(offset = 0) {
+  const p = await api("me/playlists?limit=50&offset=" + offset);
+  return {
+    items: p.items
+      .filter(Boolean)
+      .map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        owner: p.owner?.display_name || null,
+        imageUrl: p.images?.[0]?.url || null,
+        total: p.tracks?.total || 0,
+      })),
+    total: p.total,
+    raw: p.items.length,
+  };
+}
+export async function tracks(id: string, offset = 0) {
+  const p = await api(
+    (id === "liked"
+      ? "me/tracks"
+      : "playlists/" + encodeURIComponent(id) + "/tracks") +
+      "?limit=50&offset=" +
+      offset,
+  );
+  return {
+    items: p.items
+      .filter((i: any) => i.track?.id)
+      .map((i: any) => track(i.track)),
+    total: p.total,
+    raw: p.items.length,
+  };
+}
+export async function playlistInfo(id: string) {
+  const p = await api("playlists/" + encodeURIComponent(id));
+  return {
+    name: p.name,
+    owner: p.owner?.display_name || null,
+    imageUrl: p.images?.[0]?.url || null,
+    total: p.tracks?.total || 0,
+  };
+}
+export async function searchTracks(query: string) {
+  const p = await api(
+    "search?type=track&limit=10&q=" + encodeURIComponent(query),
+  );
+  return p.tracks.items.map(track);
+}
+export async function canvas() {
+  return null;
+}
+export function disconnect() {
+  store.removeSecret("spotifyOAuth");
+  return authState();
+}

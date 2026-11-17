@@ -1,5 +1,9 @@
-# Feature parity
+# Current parity and limitations
 
-Source now includes local JPEG/PNG/WebP cover extraction (bounded to 2 MiB) and a local playlist editor supporting rename, move-up/reordering, removal and save/cancel. These additions are not in the older portable EXE.
+Implemented source: Liquid Glass appearance settings and persistence; contrast-protected lyrics panel; original synchronized lyrics; multilingual OS-font fallbacks; official Spotify PKCE and API library access; explicit Google sign-in limitation; local Audio/Video controls; local artwork extraction and playlist editing; permitted direct-file downloads with progress, cancel, retry, duplicate checks and SHA-256.
 
-Previously verified: local playback, metadata, queue, persistence and IPC media pause. Unverified: provider integrations and native Windows controls. Partial: gapless playback, offline scrobble retry, download transcoding, true Stop. Android-only: Android Auto/widgets/Wear OS/attestation.
+Not implemented: supported YouTube Music account OAuth, DRM/offline service downloads, download pause/resume, per-song remote download URLs absent from upstream catalog, local video fullscreen custom controls beyond browser controls, precise gapless guarantees, offline scrobble retry.
+
+Unverified: actual Spotify account OAuth/API restrictions, local video codec behavior and switching in native Windows, live lyrics/streaming, installed Tamil/Hindi/Malayalam font coverage, Windows 10/11 visual scaling, native tray/media/taskbar behavior and install/uninstall acceptance.
+
+Existing Android-only Auto/widgets/Wear OS/attestation features remain outside this desktop port.

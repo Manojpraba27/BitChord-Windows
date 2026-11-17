@@ -59,3 +59,7 @@ The renderer has no Node integration, uses context isolation and sandboxing, and
 See [docs/TESTING.md](docs/TESTING.md) for actual results and Windows acceptance checks. Live YouTube streaming, authenticated libraries/Spotify, external lyric providers, scrobblers, permitted remote downloads and native Windows controls have not been end-to-end certified in this Linux environment. No fake music catalog or fallback demo data is shipped. Network failures remain visible in the existing error states.
 
 The desktop is based on repository commit `acf219a7e4a7f52f026d4336d5c7ac5cf7bfafcc`; the original ZIP could not be accessed due to its size. Architecture/migration notes: [docs/ANALYSIS.md](docs/ANALYSIS.md). Licenses and inherited asset caveats: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+## Liquid Glass update
+
+Open **Appearance** for glass/classic light/dark/system themes, opacity, blur, accent, dynamic colors, reduced-motion/transparency, and lyrics typography/background controls. Default is Liquid Glass Dark. **Accounts → Spotify · official OAuth** requires a registered Spotify client ID and the redirect `http://127.0.0.1:43821/callback`; tokens remain in OS-encrypted storage. Google embedded sign-in is unavailable and returns an explanatory message. Consult docs/RELEASE-NOTES.md for current provider limitations.

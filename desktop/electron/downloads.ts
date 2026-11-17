@@ -2,7 +2,7 @@ import { request } from "node:https";
 import { createWriteStream } from "node:fs";
 import { rename, unlink } from "node:fs/promises";
 import { pipeline } from "node:stream/promises";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import path from "node:path";
 import { app, dialog } from "electron";
 import { validateDownloadUrl } from "./security.mjs";
@@ -49,6 +49,7 @@ export async function startDownload(
     total: 0,
     path: file,
     error: "",
+    sha256: "",
   };
   store.download(job);
   const abort = new AbortController();
@@ -85,7 +86,9 @@ export async function startDownload(
         throw Error("File exceeds 2 GB limit");
       }
       let last = 0;
+      const hash=createHash("sha256");
       res.on("data", (chunk: Buffer) => {
+        hash.update(chunk);
         job.received += chunk.length;
         if (job.received > 2 * 1024 ** 3) abort.abort();
         if (Date.now() - last > 500) {
@@ -96,6 +99,8 @@ export async function startDownload(
       await pipeline(res, createWriteStream(file + ".part", { flags: "wx" }), {
         signal: abort.signal,
       });
+      if(job.total&&job.received!==job.total)throw Error("Downloaded size does not match Content-Length");
+      job.sha256=hash.digest("hex");
       await rename(file + ".part", file);
       await importFiles([file]);
       job.status = "complete";
