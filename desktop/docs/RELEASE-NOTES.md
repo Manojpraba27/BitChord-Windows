@@ -8,3 +8,5 @@
 - Google profile OAuth is not configured. The account card explains the required registered desktop OAuth app and its limited profile-only purpose. No broken Google sign-in button or fake connected state is shown. YouTube Music account access remains browser-only.
 
 Unsigned Windows preview. Live Spotify/Google authorization and manual Windows 10/11 acceptance are not certified. Native automated smoke results, including any runner limitations, are recorded in TEST-REPORT.md and the release's Windows smoke logs.
+
+Windows build and checksum verification completed. Native Windows validation passed all 196 tests and both desktop smoke suites. Download the installer, portable, source and reports at https://github.com/Manojpraba27/BitChord-Windows/releases/tag/library-player-preview .

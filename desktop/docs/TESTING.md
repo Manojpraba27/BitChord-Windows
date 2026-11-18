@@ -1,3 +1,5 @@
+> Historical baseline report. Current Windows build/native validation results are in [TEST-REPORT.md](TEST-REPORT.md).
+
 # Verification report
 
 Tested in Linux, 17 November 2026, using Node 24 and Electron 45.3.3.
