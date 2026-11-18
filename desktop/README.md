@@ -81,3 +81,11 @@ Current account-fix downloads: https://github.com/Manojpraba27/BitChord-Windows/
 **Import Library** imports playlist metadata without Spotify developer credentials. Preview, optional local matching and Undo are available. Supported schemas and limits: [docs/IMPORT-LIBRARY.md](docs/IMPORT-LIBRARY.md). Imported metadata is not downloaded audio; unmatched entries cannot be played.
 
 Local video supports Fullscreen, double-click/F11 and Escape, with position preserved between local Audio/Video modes. Google profile OAuth is not configured; its account card explains the required app-owner registration and limitations rather than starting a broken redirect.
+
+## Video/link update
+
+Use the Audio/Video controls on Now Playing. Local MP4/WebM files switch in the app; online YouTube video opens in an app-owned official-player window. Returning to Audio resumes the app's saved position. Unsupported local codecs offer a Windows-player fallback. Paste Spotify playlist URLs in Import Library; full track import requires an authorized Spotify API connection. File import remains credential-free.
+
+## Paste a public Spotify link without a developer ID
+
+Open Import Library → paste link → Preview public link (no developer ID) → Save linked playlist. Open My Playlists → Open Spotify player. This uses official public metadata and the official Spotify embed, with provider playback restrictions. It saves a link rather than downloading/importing songs. The separate full track-list import button requires an authorized API connection.

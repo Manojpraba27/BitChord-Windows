@@ -57,14 +57,14 @@ export async function tracks(id: string, offset = 0) {
   const p = await api(
     (id === "liked"
       ? "me/tracks"
-      : "playlists/" + encodeURIComponent(id) + "/tracks") +
+      : "playlists/" + encodeURIComponent(id) + "/items") +
       "?limit=50&offset=" +
       offset,
   );
   return {
     items: p.items
-      .filter((i: any) => i.track?.id)
-      .map((i: any) => track(i.track)),
+      .filter((i:any)=>(i.item||i.track)?.id)
+      .map((i:any)=>track(i.item||i.track)),
     total: p.total,
     raw: p.items.length,
   };

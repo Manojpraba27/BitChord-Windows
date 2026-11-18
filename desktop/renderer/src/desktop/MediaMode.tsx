@@ -8,29 +8,95 @@ export function MediaMode() {
     [error, setError] = useState(""),
     [full, setFull] = useState(false),
     [controls, setControls] = useState(true);
-  const pending=useRef<{url:string;pos:number;playing:boolean;rate:number}|null>(null);
+  const online = useRef<{
+    id: string;
+    position: number;
+    playing: boolean;
+  } | null>(null);
+  const fullRef = useRef(false);
+  const pending = useRef<{
+    url: string;
+    pos: number;
+    playing: boolean;
+    rate: number;
+  } | null>(null);
   const video = useRef<HTMLVideoElement>(null),
     surface = useRef<HTMLDivElement>(null),
     hide = useRef<ReturnType<typeof setTimeout> | null>(null);
-  function cleanup(resume=false) {
+  function cleanup(resume = false) {
+    pending.current = null;
+    if (online.current) {
+      online.current = null;
+      void native.call("providerVideoClose").catch(() => {});
+    }
+    if (fullRef.current) {
+      fullRef.current = false;
+      void native.call("videoFullscreen", { enabled: false }).catch(() => {});
+      document.documentElement.dataset.videoFullscreen = "false";
+    }
     const v = video.current;
-    const position=v?.currentTime||0,playing=v&&!v.paused;
+    const position = v?.currentTime || 0,
+      playing = v && !v.paused;
     if (v) {
+      v.onloadedmetadata = null;
+      v.onloadeddata = null;
       v.pause();
       v.removeAttribute("src");
       v.load();
     }
     setLocalVideo(null);
-    if(resume&&playing&&document.documentElement.dataset.playbackShutdown!=='true'&&usePlayer.getState().nowPlaying?.videoId===track?.videoId){const a=getAudio();if(a){a.currentTime=position;void a.play().catch(()=>{});}}
+    if (
+      resume &&
+      playing &&
+      document.documentElement.dataset.playbackShutdown !== "true" &&
+      usePlayer.getState().nowPlaying?.videoId === track?.videoId
+    ) {
+      const a = getAudio();
+      if (a) {
+        a.currentTime = position;
+        void a.play().catch(() => {});
+      }
+    }
     if (hide.current) clearTimeout(hide.current);
   }
   useEffect(() => {
     setMode("audio");
+    setFull(false);
     setError("");
     return () => cleanup(true);
   }, [track?.videoId]);
-  useEffect(()=>{document.documentElement.dataset.videoFullscreen=String(full);return()=>{document.documentElement.dataset.videoFullscreen='false';};},[full]);
-  async function fullscreen(){try{await native.call('videoFullscreen',{enabled:!full});setFull(!full);}catch{setError('Fullscreen could not start. Retry the Fullscreen button.');}}
+  useEffect(() => {
+    document.documentElement.dataset.videoFullscreen = String(full);
+    return () => {
+      document.documentElement.dataset.videoFullscreen = "false";
+    };
+  }, [full]);
+  useEffect(
+    () =>
+      native.on("provider-video-closed", () => {
+        const p = online.current;
+        online.current = null;
+        if (p && usePlayer.getState().nowPlaying?.videoId === p.id) {
+          setMode("audio");
+          const a = getAudio();
+          if (a) {
+            a.currentTime = p.position;
+            if (p.playing) void a.play().catch(() => {});
+          }
+        }
+      }),
+    [],
+  );
+  async function fullscreen() {
+    try {
+      const next = !fullRef.current;
+      await native.call("videoFullscreen", { enabled: next });
+      fullRef.current = next;
+      setFull(next);
+    } catch {
+      setError("Fullscreen could not start. Retry the Fullscreen button.");
+    }
+  }
   useEffect(() => {
     const change = () =>
       setFull(document.fullscreenElement === surface.current);
@@ -41,8 +107,14 @@ export function MediaMode() {
         e.stopImmediatePropagation();
         void fullscreen();
       }
-      if(e.key==='Escape'&&(full||document.fullscreenElement)){e.preventDefault();e.stopImmediatePropagation();if(document.fullscreenElement)void document.exitFullscreen();else void native.call('videoFullscreen',{enabled:false});setFull(false);}
-
+      if (e.key === "Escape" && (full || document.fullscreenElement)) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        if (document.fullscreenElement) void document.exitFullscreen();
+        else void native.call("videoFullscreen", { enabled: false });
+        fullRef.current = false;
+        setFull(false);
+      }
     };
     document.addEventListener("fullscreenchange", change);
     window.addEventListener("keydown", key, true);
@@ -51,25 +123,97 @@ export function MediaMode() {
       window.removeEventListener("keydown", key, true);
     };
   }, [mode, full]);
-  useEffect(()=>{if(mode!=='video'||!video.current||!pending.current)return;const v=video.current,p=pending.current;pending.current=null;setLocalVideo(v);v.src=p.url;v.volume=usePlayer.getState().muted?0:usePlayer.getState().volume;v.playbackRate=p.rate;v.onloadedmetadata=()=>{v.currentTime=p.pos;if(!v.videoWidth){setError('This container has no supported video picture. Audio mode has been restored.');cleanup();setMode('audio');const a=getAudio();if(a){a.currentTime=p.pos;if(p.playing)void a.play().catch(()=>{});}return;}if(p.playing)void v.play().catch(()=>setError('Press Play in the video controls to start playback.'));};v.load();},[mode]);
+  useEffect(() => {
+    if (mode !== "video" || !video.current || !pending.current) return;
+    const v = video.current,
+      p = pending.current;
+    pending.current = null;
+    setLocalVideo(v);
+    v.src = p.url;
+    v.volume = usePlayer.getState().muted ? 0 : usePlayer.getState().volume;
+    v.playbackRate = p.rate;
+    v.onloadedmetadata = () => {
+      v.currentTime = p.pos;
+      if (!v.videoWidth) {
+        setError(
+          "This container has no supported video picture. Audio mode has been restored.",
+        );
+        cleanup();
+        setMode("audio");
+        const a = getAudio();
+        if (a) {
+          a.currentTime = p.pos;
+          if (p.playing) void a.play().catch(() => {});
+        }
+        return;
+      }
+      if (p.playing)
+        void v
+          .play()
+          .catch(() =>
+            setError("Press Play in the video controls to start playback."),
+          );
+    };
+    v.load();
+  }, [mode]);
   async function switchMode(next: "audio" | "video") {
     if (!track || next === mode) return;
     if (!track.videoId.startsWith("local:")) {
-      setError(
-        "This mode switch supports local media. Provider content requires its supported player.",
-      );
+      try {
+        if (next === "video") {
+          const a = getAudio();
+          const position = a?.currentTime || 0,
+            playing = !!a && !a.paused;
+          a?.pause();
+          online.current = { id: track.videoId, position, playing };
+          setMode("video");
+          setError(
+            "YouTube video opens in its official player window. Returning to Audio resumes the app position saved before this switch.",
+          );
+          await native.call("providerVideoOpen", {
+            id: track.videoId,
+            position,
+          });
+        } else {
+          const p = online.current;
+          online.current = null;
+          await native.call("providerVideoClose");
+          setMode("audio");
+          const a = getAudio();
+          if (p && a) {
+            a.currentTime = p.position;
+            if (p.playing) await a.play();
+          }
+        }
+      } catch (e) {
+        online.current = null;
+        setMode("audio");
+        setError(String(e));
+      }
       return;
     }
     try {
       const a = getAudio();
       if (next === "video") {
-        const p = await native.call("track", { id: track.videoId });
-      if(!/\.(mp4|webm)$/i.test(p.track.path||'')){setError('This is an audio file. Keep Audio mode to display its artwork; choose a local MP4/WebM file for video.');return;}
+        const selectedId = track.videoId;
+        const p = await native.call("track", { id: selectedId });
+        if (usePlayer.getState().nowPlaying?.videoId !== selectedId) return;
+        if (!/\.(mp4|webm)$/i.test(p.track.path || "")) {
+          setError(
+            "This is an audio file. Keep Audio mode to display its artwork; choose a local MP4/WebM file for video.",
+          );
+          return;
+        }
         const pos = a?.currentTime || 0,
           playing = a && !a.paused;
         a?.pause();
-        pending.current={url:p.url,pos,playing:!!playing,rate:a?.playbackRate||1};
-        setMode('video');
+        pending.current = {
+          url: p.url,
+          pos,
+          playing: !!playing,
+          rate: a?.playbackRate || 1,
+        };
+        setMode("video");
       } else {
         const v = video.current,
           pos = v?.currentTime || 0,
@@ -77,6 +221,7 @@ export function MediaMode() {
         if (document.fullscreenElement) await document.exitFullscreen();
         cleanup();
         setMode("audio");
+        setFull(false);
         if (a) {
           a.currentTime = pos;
           if (playing) await a.play();
@@ -104,27 +249,45 @@ export function MediaMode() {
           </button>
         ))}
       </div>
-      {mode === "video" && (
+      {mode === "video" && track?.videoId.startsWith("local:") && (
         <div
           ref={surface}
           className="video-stage"
           data-fullscreen={full}
           data-controls={controls}
-          onDoubleClick={e=>{e.preventDefault();void fullscreen();}}
+          onDoubleClick={(e) => {
+            e.preventDefault();
+            void fullscreen();
+          }}
           onMouseMove={showControls}
           onFocus={showControls}
         >
           <video
             ref={video}
             controls
-            onPlay={() => usePlayer.setState({ status: "playing" })}
-            onPause={() => usePlayer.setState({ status: "paused" })}
+            preload="auto"
+            onPlay={() => {
+              usePlayer.setState({ status: "playing" });
+              if ("mediaSession" in navigator)
+                navigator.mediaSession.playbackState = "playing";
+            }}
+            onPause={() => {
+              usePlayer.setState({ status: "paused" });
+              if ("mediaSession" in navigator)
+                navigator.mediaSession.playbackState = "paused";
+            }}
             onEnded={() => usePlayer.getState().next()}
-            onError={() =>
+            onError={() => {
+              const code = video.current?.error?.code;
               setError(
-                "The video codec is unsupported or the file has no video track. Try Audio mode.",
-              )
-            }
+                code === 2
+                  ? "Video could not be read. Check that the local file still exists."
+                  : "This video codec cannot be decoded here. Try an H.264/AAC MP4 or VP8/Opus WebM, or open it in the Windows player below.",
+              );
+              cleanup();
+              setMode("audio");
+              setFull(false);
+            }}
           />
           <button
             className="video-fullscreen"
@@ -134,6 +297,27 @@ export function MediaMode() {
             onClick={() => void fullscreen()}
           >
             {full ? "Exit fullscreen" : "Fullscreen"} · F11
+          </button>
+        </div>
+      )}
+      {error && track?.videoId.startsWith("local:") && (
+        <div>
+          <button
+            onClick={() => {
+              setError("");
+              void switchMode("video");
+            }}
+          >
+            Retry video
+          </button>
+          <button
+            onClick={() =>
+              void native
+                .call("openLocalMedia", { id: track.videoId })
+                .catch((e) => setError(String(e)))
+            }
+          >
+            Open file in Windows player
           </button>
         </div>
       )}

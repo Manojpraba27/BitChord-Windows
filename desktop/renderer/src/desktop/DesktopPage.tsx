@@ -1,3 +1,4 @@
+import {SpotifyLinkedPlaylist} from './SpotifyLinkedPlaylist';
 import {NowPlaying} from './NowPlaying';
 import {GoogleConnection} from './GoogleConnection';
 import {YouTubeConnection} from './YouTubeConnection';
@@ -151,7 +152,7 @@ export default function DesktopPage() {
               Save queue
             </button>
           </div>
-          {playlists.map((p) => (
+          {playlists.map((p) => p.sourceUrl?<SpotifyLinkedPlaylist key={p.id} playlist={p} onChange={()=>void refresh()}/>:( 
             <div className="desktop-card" key={p.id}>
               <h2>{p.title}</h2><PlaylistEditor playlist={p} onSaved={()=>void refresh()}/>
               <p>{p.tracks.length} songs · {p.tracks.filter((t:Track)=>t.unavailable).length} unmatched metadata entries</p>

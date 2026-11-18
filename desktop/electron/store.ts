@@ -1,4 +1,4 @@
-import {commitImported,undoImported} from './importDatabase';
+import {commitImported,undoImported,saveLinkedPlaylist} from './importDatabase';
 import { DatabaseSync } from "node:sqlite";
 import { app, safeStorage } from "electron";
 import path from "node:path";
@@ -9,6 +9,7 @@ export function initStore() {
  CREATE TABLE IF NOT EXISTS tracks(id TEXT PRIMARY KEY,path TEXT UNIQUE NOT NULL,data TEXT NOT NULL);
  CREATE TABLE IF NOT EXISTS history(id INTEGER PRIMARY KEY,played INTEGER NOT NULL,data TEXT NOT NULL);
  CREATE TABLE IF NOT EXISTS favorites(id TEXT PRIMARY KEY,data TEXT NOT NULL);
+ CREATE TABLE IF NOT EXISTS playlist_links(id TEXT PRIMARY KEY,url TEXT NOT NULL);
  CREATE TABLE IF NOT EXISTS playlists(id TEXT PRIMARY KEY,title TEXT NOT NULL,data TEXT NOT NULL);
  CREATE TABLE IF NOT EXISTS downloads(id TEXT PRIMARY KEY,data TEXT NOT NULL);`);
 }
@@ -104,11 +105,12 @@ export function downloads(): any[] {
 
 export function playlists() {
   return db
-    .prepare("SELECT id,title,data FROM playlists ORDER BY title")
+    .prepare("SELECT p.id,p.title,p.data,l.url FROM playlists p LEFT JOIN playlist_links l ON l.id=p.id ORDER BY p.title")
     .all()
     .map((r) => ({
       id: r.id,
       title: r.title,
+      sourceUrl:r.url||null,
       tracks: JSON.parse(String(r.data)),
     }));
 }
@@ -120,6 +122,7 @@ export function savePlaylist(id: string, title: string, tracks: any[]) {
   );
 }
 export function deletePlaylist(id: string) {
+  db.prepare("DELETE FROM playlist_links WHERE id=?").run(id);
   db.prepare("DELETE FROM playlists WHERE id=?").run(id);
 }
 export function removeSecret(key: string) {
@@ -128,3 +131,5 @@ export function removeSecret(key: string) {
 
 export function commitImport(lists:{id:string;title:string;tracks:any[]}[]){return commitImported(db,lists);}
 export function undoImport(id:string){return undoImported(db,id);}
+
+export function saveSpotifyLink(item:{id:string;title:string;sourceUrl:string}){return saveLinkedPlaylist(db,item);}

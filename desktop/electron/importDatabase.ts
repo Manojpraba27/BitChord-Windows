@@ -52,3 +52,33 @@ export function undoImported(db: any, id: string) {
     throw e;
   }
 }
+
+export function saveLinkedPlaylist(
+  db: any,
+  item: { id: string; title: string; sourceUrl: string },
+) {
+  db.exec(
+    "CREATE TABLE IF NOT EXISTS playlist_links(id TEXT PRIMARY KEY,url TEXT NOT NULL)",
+  );
+  const existing = db
+    .prepare("SELECT id FROM playlists WHERE id=?")
+    .get(item.id);
+  db.exec("BEGIN IMMEDIATE");
+  try {
+    if (!existing)
+      db.prepare("INSERT INTO playlists VALUES(?,?,?)").run(
+        item.id,
+        item.title,
+        "[]",
+      );
+    db.prepare("INSERT OR REPLACE INTO playlist_links VALUES(?,?)").run(
+      item.id,
+      item.sourceUrl,
+    );
+    db.exec("COMMIT");
+    return { alreadySaved: !!existing, id: item.id };
+  } catch (e) {
+    db.exec("ROLLBACK");
+    throw e;
+  }
+}

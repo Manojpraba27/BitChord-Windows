@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router";
 import { native } from "./api";
 export default function ImportPage() {
-  const [match,setMatch]=useState(true),[preview, setPreview] = useState<any>(null),
+  const [publicLink,setPublicLink]=useState<any>(null),[link,setLink]=useState(''),[match,setMatch]=useState(true),[preview, setPreview] = useState<any>(null),
     [busy, setBusy] = useState(false),
     [message, setMessage] = useState(""),
     [undo, setUndo] = useState("");
@@ -39,6 +39,7 @@ export default function ImportPage() {
         Bring playlist metadata and your own music into BitChord. No Spotify
         developer account required.
       </p>
+      <div className="desktop-card"><h2>Paste a Spotify playlist link</h2><label>Playlist link<input aria-label="Spotify playlist link" type="url" value={link} onChange={e=>setLink(e.target.value)} placeholder="https://open.spotify.com/playlist/…"/></label><button disabled={busy||!link.trim()} onClick={()=>void run(async()=>setPreview(await native.call('importSpotifyLink',{url:link,match})))}>Import track list (connected account)</button><button disabled={busy||!link.trim()} onClick={()=>void run(async()=>{setPublicLink(await native.call('previewSpotifyPublicLink',{url:link}));})}>Preview public link (no developer ID)</button>{publicLink&&<div><h3>{publicLink.title}</h3><p>Linked playlist: Spotify displays and controls its tracks. No audio or track list is downloaded.</p><button disabled={busy} onClick={()=>void run(async()=>{const r=await native.call('saveSpotifyPublicLink',{url:publicLink.sourceUrl});setMessage(r.alreadySaved?'This Spotify link is already saved in My Playlists.':'Spotify link saved. Open My Playlists to view Spotify’s official player.');})}>Save linked playlist</button><Link to="/playlists">Open My Playlists →</Link></div>}<p>This loads the track list through your authorized Spotify connection. It does not download Spotify audio. If no Spotify app/account is connected, use CSV/JSON import below.</p><Link to="/integrations">Spotify account setup →</Link></div>
       <div className="desktop-card">
         <h2>Spotify & playlist exports</h2>
         <p>
@@ -77,7 +78,7 @@ export default function ImportPage() {
       )}
       {preview && (
         <div className="desktop-card">
-          <h2>Preview · {preview.file}</h2>
+          <h2>Preview · {preview.file}</h2>{preview.skipped>0&&<p>{preview.skipped} unavailable entries were omitted by Spotify.</p>}
           {preview.lists.map((p: any) => (
             <div key={p.id}>
               <h3>

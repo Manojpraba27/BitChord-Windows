@@ -131,6 +131,7 @@ async function launch() {
   const exportFile=path.join(temporary,'Spotify playlist.csv');fs.writeFileSync(exportFile,'Track Name,Artist Name(s),Album Name\nPlayback verification,Unknown artist,\nUnmatched song,Artist,Album');
   await page.getByRole('link',{name:'Import Library',exact:true}).click();
   await page.getByRole('heading',{name:'Import Library',exact:true}).waitFor();
+  await page.getByLabel('Spotify playlist link',{exact:true}).fill('https://open.spotify.com/playlist/0123456789ABCDEFGHIJKL');await page.getByRole('button',{name:'Import track list (connected account)',exact:true}).click();await page.getByText(/Spotify link import requires an authorized Spotify account/).waitFor();console.log('SPOTIFY LINK UI: paste field works and missing authorization is explicit');
   const preview=await importFixture(page,exportFile,true);assert.equal(preview.lists[0].matched,1);
   const batch=await page.evaluate(token=>window.desktop.call('importApply',{token}),preview.token);assert.equal(batch.added,1);
   const againPreview=await importFixture(page,exportFile,true);

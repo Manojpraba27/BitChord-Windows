@@ -1,5 +1,7 @@
+import {readSpotifyPublicLink} from './spotifyLink';
+import {openProviderVideo,closeProviderVideo} from './providerVideo';
 import {closeAction} from './closePolicy';
-import {previewImport,applyImport} from './importService';
+import {previewImport,applyImport,previewSpotifyLink} from './importService';
 import * as spotifyOAuth from './spotifyOAuth';
 import { randomUUID } from "node:crypto";
 import { authState } from "../vendor/ytAuth";
@@ -53,7 +55,7 @@ let win: BrowserWindow,
   quitting = false;
 const root = path.join(__dirname, "..");
 const csp =
-  "default-src 'self'; script-src 'self' 'unsafe-eval' https://www.youtube.com; style-src 'self' 'unsafe-inline'; img-src 'self' https: data: blob:; media-src 'self' https: blob:; connect-src 'self' https: wss:; worker-src 'self' blob:; font-src 'self' data:; object-src 'none'; frame-src 'none'; base-uri 'none'";
+  "default-src 'self'; script-src 'self' 'unsafe-eval' https://www.youtube.com; style-src 'self' 'unsafe-inline'; img-src 'self' https: data: blob:; media-src 'self' https: blob:; connect-src 'self' https: wss:; worker-src 'self' blob:; font-src 'self' data:; object-src 'none'; frame-src https://open.spotify.com; base-uri 'none'";
 function send(name: string, data: any) {
   if (win && !win.isDestroyed()) win.webContents.send(name, data);
 }
@@ -99,6 +101,12 @@ async function desktop(method: string, p: any) {
         app.setLoginItemSettings({ openAtLogin: p.value });
       } else throw Error("Unknown setting");
       return;
+    case 'providerVideoOpen':{closeProviderVideo();globalShortcut.unregisterAll();try{return await openProviderVideo(text(p.id,20),Number(p.position)||0,()=>{if(!quitting)registerMediaKeys();send('provider-video-closed',{});});}catch(e){registerMediaKeys();throw e;}}
+    case 'providerVideoClose':closeProviderVideo();return;
+    case 'previewSpotifyPublicLink':return readSpotifyPublicLink(text(p.url,2000),net.fetch);
+    case 'saveSpotifyPublicLink':{const link=await readSpotifyPublicLink(text(p.url,2000),net.fetch);return store.saveSpotifyLink(link);}
+    case 'importSpotifyLink':return previewSpotifyLink(text(p.url,2000),p.match!==false);
+    case 'openLocalMedia':{const t=store.track(text(p.id,100));if(!t)throw Error('Local media is missing');await stat(t.path);const error=await shell.openPath(t.path);if(error)throw Error('Windows could not open this file in the default media player.');return;}
     case "importPreview":return previewImport(undefined,p.match!==false);
     case "importPreviewDropped":if(!Array.isArray(p.paths)||p.paths.length!==1)throw Error('Choose one import file');return previewImport(p.paths.map((s:any)=>text(s,4000)),p.match!==false);
     case "importApply":return applyImport(text(p.token,100));
@@ -240,6 +248,7 @@ async function desktop(method: string, p: any) {
       throw Error("Unknown desktop command");
   }
 }
+function registerMediaKeys(){for(const [key,cmd]of [['MediaPlayPause','toggle'],['MediaNextTrack','next'],['MediaPreviousTrack','previous'],['MediaStop','pause']])globalShortcut.register(key,()=>media(cmd));}
 let quitTimer:ReturnType<typeof setTimeout>|undefined;
 function requestQuit(){if(quitting)return;quitting=true;spotifyOAuth.cancel();send('media','shutdown');quitTimer=setTimeout(()=>{for(const w of BrowserWindow.getAllWindows())w.destroy();app.quit();},250);}
 function validateTrack(t: any) {
@@ -450,13 +459,7 @@ else {
         );
         tray.on("double-click", () => win.show());
       }
-      for (const [key, cmd] of [
-        ["MediaPlayPause", "toggle"],
-        ["MediaNextTrack", "next"],
-        ["MediaPreviousTrack", "previous"],
-        ["MediaStop", "pause"],
-      ])
-        globalShortcut.register(key, () => media(cmd));
+      registerMediaKeys();
       Menu.setApplicationMenu(null);
     })
     .catch((e) => {
