@@ -20,7 +20,7 @@ export async function bridge(method: string, p: any) {
       text(p.url, 4000);
       return ytFetch(p);
     case "yt.authState":
-      return yt.authState(p.refresh === true);
+      return {browserSignedIn:false,connected:false,signedIn:false,accounts:[],active:null,problem:'YouTube Music account integration is unavailable. Open the official website from Accounts.'};
     case "yt.selectChannel":
       return yt.selectChannel(text(p.channelId, 200));
     case "yt.setConnected":
@@ -37,7 +37,7 @@ export async function bridge(method: string, p: any) {
     case "spotify.setConnected":
       return p.connected ? spotify.authState() : spotify.disconnect();
     case "spotify.signIn":
-      await spotify.connect((await import("./store")).get("spotifyClientId", ""));
+      throw Error('Open Accounts to configure and connect Spotify through browser OAuth.');
       return {};
     case "spotify.playlists":
       return spotify.playlists(Number(p.offset) || 0);

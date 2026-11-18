@@ -1,3 +1,4 @@
+import {Link} from 'react-router';
 import { PageHeader } from '@/components/PageHeader';
 import { SquareLockup } from '@/components/music/Lockups';
 import { EmptyState, LoadError, NeedsExtension, stateStyles } from '@/components/music/States';
@@ -32,30 +33,9 @@ export default function SpotifyPage() {
   }
   const state = auth.auth;
   if (!state.signedIn) {
-    const [title, detail, action] = !state.browserSignedIn
-      ? ['Sign in to Spotify', 'BitChord uses the Spotify account this browser is signed in to, through the extension.', 'Sign In']
-      : !state.connected
-        ? ['Spotify is disconnected', 'You’re signed in to Spotify in this browser. Connect to see your playlists here.', 'Connect']
-        : ['Couldn’t read your Spotify account', state.problem ?? 'Spotify didn’t answer.', 'Try Again'];
-    return (
-      <>
-        <PageHeader title="Spotify" />
-        <div className={stateStyles.state}>
-          <p className={stateStyles.title}>{title}</p>
-          <p className={stateStyles.detail}>{detail}</p>
-          <button
-            className={stateStyles.button}
-            disabled={connect.isPending || retry.isPending}
-            onClick={() =>
-              !state.browserSignedIn ? openSpotifySignIn() : !state.connected ? connect.mutate(true) : retry.mutate()
-            }
-          >
-            {action}
-          </button>
-        </div>
-      </>
-    );
+    return <><PageHeader title="Spotify"/><div className={stateStyles.state}><p className={stateStyles.title}>Connect your Spotify account</p><p className={stateStyles.detail}>{state.problem||'Use official browser OAuth from Accounts. A registered Spotify application Client ID is required.'}</p><Link className={stateStyles.button} to="/integrations">Open account settings</Link></div></>;
   }
+
   if (playlists.isError && !playlists.data) return <LoadError error={playlists.error} onRetry={() => void playlists.refetch()} />;
   if (!playlists.data) return <PlainSkeleton />;
 

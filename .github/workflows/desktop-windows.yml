@@ -63,10 +63,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $repo = '${{ github.repository }}'
-          $tag = 'liquid-glass-preview'
+          $tag = 'auth-fix-preview'
           gh release view $tag --repo $repo 2>$null
           if ($LASTEXITCODE -ne 0) {
-            gh release create $tag --repo $repo --target '${{ github.sha }}' --title 'BitChord Liquid Glass Preview' --prerelease --notes 'Unsigned preview. Native Windows manual acceptance and real provider integrations remain unverified. See source documentation for limitations.'
+            gh release create $tag --repo $repo --target '${{ github.sha }}' --title 'BitChord Account Login Fix Preview' --prerelease --notes 'Unsigned preview. Native Windows manual acceptance and real provider integrations remain unverified. See source documentation for limitations.'
           }
           if (Test-Path windows-build.log) { gh release upload $tag windows-build.log --repo $repo --clobber }
           if (Test-Path release/SHA256SUMS.txt) {

@@ -74,28 +74,7 @@ export function LyricSourcesAccess() {
 }
 
 /** The Spotify row's words and button (SpotifyLibraryScreen's states). */
-export function SpotifyIntegration() {
-  const auth = useSpotifyAuth();
-  const connect = useSetSpotifyConnected();
-  const retry = useRefreshSpotifyAuth();
-  if (auth.state !== 'ready') return <span className={settingsUi.value}>{spotifyText(auth)}</span>;
-  const { browserSignedIn, connected, signedIn } = auth.auth;
-  const action = !browserSignedIn
-    ? { label: 'Sign In', run: openSpotifySignIn }
-    : !connected
-      ? { label: 'Connect', run: () => connect.mutate(true) }
-      : !signedIn
-        ? { label: 'Retry', run: () => retry.mutate() }
-        : { label: 'Disconnect', run: () => connect.mutate(false) };
-  return (
-    <span className={settingsUi.value}>
-      <span title={auth.auth.problem ?? undefined}>{spotifyText(auth)}</span>
-      <button className={settingsUi.inlineButton} onClick={action.run} disabled={connect.isPending || retry.isPending}>
-        {action.label}
-      </button>
-    </span>
-  );
-}
+export function SpotifyIntegration(){return <a href="/integrations" className={settingsUi.inlineButton}>Manage Spotify account</a>;}
 
 function spotifyText(auth: SpotifyAuthStatus): string {
   if (auth.state === 'checking') return 'Checking…';

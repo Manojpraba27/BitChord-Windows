@@ -65,3 +65,7 @@ The desktop is based on repository commit `acf219a7e4a7f52f026d4336d5c7ac5cf7bfa
 Open **Appearance** for glass/classic light/dark/system themes, opacity, blur, accent, dynamic colors, reduced-motion/transparency, and lyrics typography/background controls. Default is Liquid Glass Dark. **Accounts → Spotify · official OAuth** requires a registered Spotify client ID and the redirect `http://127.0.0.1:43821/callback`; tokens remain in OS-encrypted storage. Google embedded sign-in is unavailable and returns an explanatory message. Consult docs/RELEASE-NOTES.md for current provider limitations.
 
 Download the current unsigned preview installer and portable at https://github.com/Manojpraba27/BitChord-Windows/releases/tag/liquid-glass-preview . Consult docs/TEST-REPORT.md for verified results and remaining manual checks.
+
+## Account login fix
+
+The current auth-fix-preview uses **http://127.0.0.1:8888/callback** (replacing the earlier 43821 URI). Create a Spotify developer application, register that exact URI, and enter its public Client ID in Accounts. No Client Secret is required. Connection succeeds only after token exchange and profile verification. Setup, sanitized diagnostics and provider limitations: [docs/AUTHENTICATION.md](docs/AUTHENTICATION.md). YouTube Music remains browser-only; signing in on its website does not connect BitChord.

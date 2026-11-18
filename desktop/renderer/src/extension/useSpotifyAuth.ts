@@ -86,5 +86,6 @@ export function useRefreshSpotifyAuth() {
 }
 
 export function openSpotifySignIn(): void {
-  void detected()?.bridge.call('spotify.signIn', {});
+  history.pushState({}, '', '/integrations');
+  window.dispatchEvent(new PopStateEvent('popstate'));
 }

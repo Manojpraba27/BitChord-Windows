@@ -122,6 +122,15 @@ async function launch() {
   await page.getByLabel('Reduce motion',{exact:true}).check();
   assert.equal(await page.evaluate(()=>document.documentElement.dataset.reduceMotion),'true');
   console.log('APPEARANCE: reduced-motion preference applied through UI');
+  await page.getByRole('link',{name:'Accounts',exact:true}).first().click();
+  await page.getByRole('heading',{name:'Spotify',exact:true}).waitFor();
+  assert.equal(await page.getByRole('button',{name:'Connect Spotify',exact:true}).isDisabled(),true);
+  await page.getByText('Browser only · not connected to BitChord',{exact:true}).waitFor();
+  const config=await page.evaluate(()=>window.desktop.call('spotifyConfiguration'));assert.equal(config.redirectUri,'http://127.0.0.1:8888/callback');
+  const invalid=await page.evaluate(()=>window.desktop.call('spotifyConnect',{clientId:''}).then(()=>false,()=>true));assert.equal(invalid,true);
+  const unsupported=await page.evaluate(()=>window.desktop.call('signIn',{service:'youtube'}).then(()=>false,()=>true));assert.equal(unsupported,true);
+  console.log('ACCOUNT UI: configuration required, no fake YouTube session, sanitized missing-client rejection');
+
 
   const rejected = await page.evaluate(() =>
     window.desktop.call("setting", { key: "unexpected", value: true }).then(

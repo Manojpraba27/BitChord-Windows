@@ -1,3 +1,4 @@
+import {YouTubeConnection} from './YouTubeConnection';
 import {MediaMode} from './MediaMode';
 import {SpotifyConnection} from './SpotifyConnection';
 import {PlaylistEditor} from './PlaylistEditor';
@@ -547,45 +548,8 @@ export default function DesktopPage() {
       )}
       {route === "/integrations" && (
         <>
-          <div className="desktop-card">
-            <h2>Account connections</h2><SpotifyConnection/>
-            <p>
-              Sign in in an isolated account window. BitChord keeps session
-              cookies outside the renderer. Provider login restrictions may
-              apply.
-            </p>
-            <button
-              onClick={() =>
-                void run(
-                  () => native.call("signIn", { service: "youtube" }),
-                  "Complete sign-in, then return to BitChord.",
-                )
-              }
-            >
-              Sign in to YouTube Music
-            </button>
-            <button
-              onClick={() =>
-                void run(
-                  () => native.call("signIn", { service: "spotify" }),
-                  "Complete sign-in, then return to BitChord.",
-                )
-              }
-            >
-              Sign in to Spotify
-            </button>
-            <Link to="/settings">Manage connections →</Link>
-            <button
-              onClick={() =>
-                void run(
-                  () => native.call("logout"),
-                  "Account sessions cleared. Reload BitChord to refresh all pages.",
-                )
-              }
-            >
-              Clear account sessions
-            </button>
-          </div>
+          <SpotifyConnection/>
+          <YouTubeConnection/>
           <div className="desktop-card">
             <h2>Discord Rich Presence</h2>
             <p>

@@ -181,9 +181,13 @@ async function desktop(method: string, p: any) {
     case "cancelDownload":
       cancelDownload(text(p.id, 100));
       return;
-    case "spotifyConnect":
-      return spotifyOAuth.connect(text(p.clientId,64));
-    case "spotifyDisconnect":return spotifyOAuth.disconnect();
+    case "spotifyConfiguration":return spotifyOAuth.configuration();
+    case "spotifyStatus":return spotifyOAuth.authState();
+    case "spotifyDiagnostics":return spotifyOAuth.diagnostics();
+    case "spotifyCancel":spotifyOAuth.cancel();return;
+    case "openYouTubeMusic":await shell.openExternal('https://music.youtube.com/');return;
+    case "spotifyConnect":{const data=await spotifyOAuth.connect(text(p.clientId,64));send('bridge-event',{event:'spotify.authState',data});return data;}
+    case "spotifyDisconnect":{const data=await spotifyOAuth.disconnect();send('bridge-event',{event:'spotify.authState',data});return data;}
     case "signIn":
       if (!["youtube", "spotify"].includes(p.service))
         throw Error("Unknown service");
@@ -191,6 +195,7 @@ async function desktop(method: string, p: any) {
       signIn(p.service);
       return;
     case "logout":
+      await spotifyOAuth.disconnect();
       await authSession().clearStorageData();
       invalidateAccounts();
       invalidateSession();
