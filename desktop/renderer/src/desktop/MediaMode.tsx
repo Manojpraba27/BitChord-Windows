@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { getAudio, usePlayer } from "@/state/player";
 import { native } from "./api";
-import { setLocalVideo } from "./localVideo";
+import { setLocalVideo,getLocalVideo } from "./localVideo";
 export function MediaMode() {
   const track = usePlayer((s) => s.nowPlaying);
   const [mode, setMode] = useState<"audio" | "video">("audio"),
@@ -20,6 +20,7 @@ export function MediaMode() {
     playing: boolean;
     rate: number;
   } | null>(null);
+  const ownedVideo=useRef<HTMLVideoElement|null>(null);
   const video = useRef<HTMLVideoElement>(null),
     surface = useRef<HTMLDivElement>(null),
     hide = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -34,7 +35,7 @@ export function MediaMode() {
       void native.call("videoFullscreen", { enabled: false }).catch(() => {});
       document.documentElement.dataset.videoFullscreen = "false";
     }
-    const v = video.current;
+    const v=ownedVideo.current||video.current;ownedVideo.current=null;setLocalVideo(null);
     const position = v?.currentTime || 0,
       playing = v && !v.paused;
     if (v) {
@@ -128,7 +129,7 @@ export function MediaMode() {
     const v = video.current,
       p = pending.current;
     pending.current = null;
-    setLocalVideo(v);
+    ownedVideo.current=v;setLocalVideo(v);
     v.src = p.url;
     v.volume = usePlayer.getState().muted ? 0 : usePlayer.getState().volume;
     v.playbackRate = p.rate;
@@ -272,6 +273,7 @@ export function MediaMode() {
                 navigator.mediaSession.playbackState = "playing";
             }}
             onPause={() => {
+              if(getLocalVideo()!==video.current)return;
               usePlayer.setState({ status: "paused" });
               if ("mediaSession" in navigator)
                 navigator.mediaSession.playbackState = "paused";
