@@ -1,0 +1,42 @@
+name: Validate BitChord on Windows
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  windows-validation:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: desktop
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+      - run: npm ci
+      - run: node node_modules/electron/install.js
+      - run: npm test
+      - run: npm run build
+      - name: Native desktop validation
+        shell: pwsh
+        env:
+          BITCHORD_USE_FIXTURES: '1'
+        run: |
+          node scripts/smoke.cjs 2>&1 | Tee-Object -FilePath windows-smoke.log
+          $audioResult = $LASTEXITCODE
+          node scripts/video-smoke.cjs 2>&1 | Tee-Object -FilePath windows-video-smoke.log
+          $videoResult = $LASTEXITCODE
+          "Audio/import/close smoke exit code: $audioResult; video/fullscreen smoke exit code: $videoResult" | Set-Content windows-smoke-status.txt
+          if ($audioResult -ne 0 -or $videoResult -ne 0) { exit 1 }
+      - name: Publish validation evidence
+        if: always()
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          foreach ($file in @('windows-smoke.log','windows-video-smoke.log','windows-smoke-status.txt')) {
+            if (Test-Path $file) { gh release upload library-player-preview $file --repo '${{ github.repository }}' --clobber }
+          }

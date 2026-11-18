@@ -31,7 +31,7 @@ for (let i = 0; i < rate * seconds; i++)
 const wav = path.join(temporary, "Playback verification.wav");
 fs.writeFileSync(wav, b);
 const extra=[];
-try{execFileSync('ffmpeg',['-version'],{stdio:'ignore'});for(const ext of ['mp3','flac']){const file=path.join(temporary,'Codec verification.'+ext);execFileSync('ffmpeg',['-v','error','-i',wav,file],{stdio:'ignore'});extra.push(file);}}catch{}
+try{if(process.env.BITCHORD_USE_FIXTURES)throw Error('Use fixtures');execFileSync('ffmpeg',['-version'],{stdio:'ignore'});for(const ext of ['mp3','flac']){const file=path.join(temporary,'Codec verification.'+ext);execFileSync('ffmpeg',['-v','error','-i',wav,file],{stdio:'ignore'});extra.push(file);}}catch{for(const ext of ['mp3','flac']){const file=path.join(temporary,'Codec verification.'+ext);fs.copyFileSync(path.join(__dirname,'../tests/fixtures/audio.'+ext),file);if(!extra.includes(file))extra.push(file);}console.log('TEST FIXTURES: MP3/FLAC generated tones; no provider media');}
 let app;
 async function launch() {
   app = await electron.launch({

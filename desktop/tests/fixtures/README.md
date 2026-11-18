@@ -1,0 +1,1 @@
+Generated test-only media: 330 Hz sine waves, and a blue 320×180 VP8/Vorbis WebM. No catalog music or copyrighted recordings. Generated with FFmpeg for repeatable codec/fullscreen tests on runners without FFmpeg. Files are excluded from packaged app resources by electron-builder's files list.
