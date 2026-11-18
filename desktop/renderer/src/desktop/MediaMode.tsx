@@ -268,12 +268,13 @@ export function MediaMode() {
             controls
             preload="auto"
             onPlay={() => {
+              if(!video.current||getLocalVideo()!==video.current)return;
               usePlayer.setState({ status: "playing" });
               if ("mediaSession" in navigator)
                 navigator.mediaSession.playbackState = "playing";
             }}
             onPause={() => {
-              if(getLocalVideo()!==video.current)return;
+              if(!video.current||getLocalVideo()!==video.current)return;
               usePlayer.setState({ status: "paused" });
               if ("mediaSession" in navigator)
                 navigator.mediaSession.playbackState = "paused";
