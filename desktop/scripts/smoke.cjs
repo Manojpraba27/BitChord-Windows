@@ -1,3 +1,4 @@
+const {importFixture}=require('./smokeFiles.cjs');
 const { _electron: electron } = require("@playwright/test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
@@ -37,9 +38,7 @@ async function launch() {
     args: [
       ".",
       "--smoke-test",
-      "--no-sandbox",
-      "--ozone-platform=headless",
-      "--disable-gpu",
+      ...(process.platform==='linux'?['--no-sandbox','--ozone-platform=headless','--disable-gpu']:[]),
       `--user-data-dir=${path.join(temporary, "profile")}`,
     ],
     env: {
@@ -55,6 +54,7 @@ async function launch() {
 }
 (async () => {
   const page = await launch();
+ assert.equal((await page.evaluate(()=>window.desktop.call('settings'))).minimizeToTray,false);console.log('CLOSE DEFAULT: exit selected without changing preferences');
   assert.equal(
     (await page.evaluate(() => window.desktop.bridge("ping", {}))).protocol,
     1,
@@ -62,10 +62,7 @@ async function launch() {
   await page.evaluate(() =>
     window.desktop.call("setting", { key: "minimizeToTray", value: false }),
   );
-  const result = await page.evaluate(
-    (file) => window.desktop.call("importDropped", { paths: [file] }),
-    wav,
-  );
+  const result = await importFixture(page,wav);
   assert.equal(result.tracks.length, 1);
   assert.equal(result.errors.length, 0);
   const id = result.tracks[0].videoId;
@@ -102,9 +99,9 @@ async function launch() {
   );
   console.log("MEDIA COMMAND: paused");
   for(const file of extra){
-    const imported=await page.evaluate(file=>window.desktop.call('importDropped',{paths:[file]}),file);
+    const imported=await importFixture(page,file);
     assert.equal(imported.errors.length,0);
-    const track=imported.tracks.find(t=>t.title==='Codec verification'&&t.videoId!==id);
+    const expected='local:'+require('node:crypto').createHash('sha256').update(fs.realpathSync(file)).digest('hex');const track=imported.tracks.find(t=>t.videoId===expected);
     const detail=await page.evaluate(id=>window.desktop.call('track',{id}),track.videoId);
     const decoded=await page.evaluate(async url=>{const audio=new Audio(url);await audio.play();await new Promise(r=>setTimeout(r,500));const result={time:audio.currentTime,duration:audio.duration};audio.pause();return result;},detail.url);
     assert.ok(decoded.time>0);assert.ok(decoded.duration>10);console.log('CODEC: '+path.extname(file)+' playback advances');
@@ -130,6 +127,17 @@ async function launch() {
   const invalid=await page.evaluate(()=>window.desktop.call('spotifyConnect',{clientId:''}).then(()=>false,()=>true));assert.equal(invalid,true);
   const unsupported=await page.evaluate(()=>window.desktop.call('signIn',{service:'youtube'}).then(()=>false,()=>true));assert.equal(unsupported,true);
   console.log('ACCOUNT UI: configuration required, no fake YouTube session, sanitized missing-client rejection');
+  const exportFile=path.join(temporary,'Spotify playlist.csv');fs.writeFileSync(exportFile,'Track Name,Artist Name(s),Album Name\nPlayback verification,Unknown artist,\nUnmatched song,Artist,Album');
+  await page.getByRole('link',{name:'Import Library',exact:true}).click();
+  await page.getByRole('heading',{name:'Import Library',exact:true}).waitFor();
+  const preview=await importFixture(page,exportFile,true);assert.equal(preview.lists[0].matched,1);
+  const batch=await page.evaluate(token=>window.desktop.call('importApply',{token}),preview.token);assert.equal(batch.added,1);
+  const againPreview=await importFixture(page,exportFile,true);
+  const duplicate=await page.evaluate(token=>window.desktop.call('importApply',{token}),againPreview.token);assert.equal(duplicate.duplicates,1);
+  await page.evaluate(id=>window.desktop.call('importUndo',{id}),batch.undoId);
+  console.log('IMPORT: native preview, local match, duplicate skip and undo passed');
+ const unsafe=await page.evaluate(()=>window.desktop.call('importPreviewDropped',{paths:['/arbitrary/file.json']}).then(()=>false,()=>true));assert.equal(unsafe,true);console.log('SECURITY: renderer cannot supply arbitrary import file paths');
+
 
 
   const rejected = await page.evaluate(() =>
@@ -168,7 +176,10 @@ async function launch() {
   console.log(
     "PERSISTENCE: library, favorites, window setting and theme survived restart",
   );
-  await app.evaluate(({ app }) => app.exit(0));
+  await again.getByRole('link',{name:'Local Music',exact:true}).click();await again.getByRole('button',{name:'Play Playback verification',exact:true}).click();await again.waitForFunction(()=>navigator.mediaSession.playbackState==='playing');
+  const exited=new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('App did not exit after close')),6000);app.process().once('exit',()=>{clearTimeout(timer);resolve();});});
+  await again.evaluate(()=>window.desktop.call('window',{action:'close'})).catch(()=>{});await exited;console.log('SHUTDOWN: default close terminates owned Electron process');
+  const third=await launch();await third.evaluate(()=>window.desktop.call('setting',{key:'minimizeToTray',value:true}));await third.getByRole('link',{name:'Local Music',exact:true}).click();await third.getByRole('button',{name:'Play Playback verification',exact:true}).click();await third.waitForFunction(()=>navigator.mediaSession.playbackState==='playing');const quitExit=new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('Quit did not exit')),6000);app.process().once('exit',()=>{clearTimeout(timer);resolve();});});await third.evaluate(()=>window.desktop.call('quit')).catch(()=>{});await quitExit;console.log('QUIT COMMAND: exits during playback with tray preference enabled');
   fs.rmSync(temporary, { recursive: true, force: true });
 })().catch(async (e) => {
   console.error(e);

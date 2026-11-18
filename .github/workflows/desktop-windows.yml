@@ -36,6 +36,16 @@ jobs:
           name: windows-build-diagnostics
           path: desktop/windows-build.log
 
+      - name: Windows desktop smoke checks
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          node scripts/smoke.cjs 2>&1 | Tee-Object -FilePath windows-smoke.log
+          $audioResult = $LASTEXITCODE
+          node scripts/video-smoke.cjs 2>&1 | Tee-Object -FilePath windows-video-smoke.log
+          $videoResult = $LASTEXITCODE
+          "Audio/import/close smoke exit code: $audioResult; video/fullscreen smoke exit code: $videoResult" | Set-Content windows-smoke-status.txt
+          if ($audioResult -ne 0 -or $videoResult -ne 0) { exit 1 }
       - name: Verify executables and create checksums
         shell: pwsh
         run: |
@@ -63,11 +73,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $repo = '${{ github.repository }}'
-          $tag = 'auth-fix-preview'
+          $tag = 'library-player-preview'
           gh release view $tag --repo $repo 2>$null
           if ($LASTEXITCODE -ne 0) {
-            gh release create $tag --repo $repo --target '${{ github.sha }}' --title 'BitChord Account Login Fix Preview' --prerelease --notes 'Unsigned preview. Native Windows manual acceptance and real provider integrations remain unverified. See source documentation for limitations.'
+            gh release create $tag --repo $repo --target '${{ github.sha }}' --title 'BitChord Library and Player Preview' --prerelease --notes 'Unsigned preview. Native Windows manual acceptance and real provider integrations remain unverified. See source documentation for limitations.'
           }
+          foreach ($log in @('windows-smoke.log','windows-video-smoke.log','windows-smoke-status.txt')) { if (Test-Path $log) { gh release upload $tag $log --repo $repo --clobber } }
           if (Test-Path windows-build.log) { gh release upload $tag windows-build.log --repo $repo --clobber }
           if (Test-Path release/SHA256SUMS.txt) {
             gh release upload $tag release/BitChord-Portable.exe release/BitChord-Setup.exe release/SHA256SUMS.txt --repo $repo --clobber

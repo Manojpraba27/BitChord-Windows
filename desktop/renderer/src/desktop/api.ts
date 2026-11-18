@@ -4,6 +4,7 @@ declare global {
     desktop: {
       call: (method: string, params?: any) => Promise<any>;
       bridge: (method: string, params: any) => Promise<any>;
+      importPlaylistDropped:(files:File[],match?:boolean)=>Promise<any>;
       importDropped: (files: File[]) => Promise<any>;
       on: (name: string, fn: (data: any) => void) => () => void;
     };

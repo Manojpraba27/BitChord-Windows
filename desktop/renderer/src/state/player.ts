@@ -1,3 +1,4 @@
+import {getLocalVideo} from '@/desktop/localVideo';
 import type { DetectedExtension } from '@bitchord/shared/bridge';
 import { create } from 'zustand';
 import type { Track } from '@/data/music/types';
@@ -160,6 +161,7 @@ export function getAudio(): HTMLAudioElement | null {
  * underneath). The lyrics and the seek bars read this.
  */
 export function getPlayhead(): { sec: number; paused: boolean } | null {
+ const v=getLocalVideo();if(v)return {sec:v.currentTime,paused:v.paused};
   const audio = getAudio();
   const { mixing, nowPlaying } = usePlayer.getState();
   if (mixing && graph && nowPlaying) {
@@ -212,6 +214,7 @@ function getDecks(): Promise<Deck[]> {
 }
 
 function applyVolumes() {
+ const video=getLocalVideo();if(video){const s=usePlayer.getState();video.volume=s.muted?0:Math.max(0,Math.min(1,s.volume));}
   const { volume, muted } = usePlayer.getState();
   const level = muted ? 0 : Math.min(1, Math.max(0, volume));
   if (graph) {
@@ -445,6 +448,7 @@ export const usePlayer = create<PlayerState>()((set, get) => ({
   },
 
   playTrack(track, source) {
+ if(track.unavailable){set({error:'This imported entry is unmatched metadata. Add a matching local audio file before playing it.'});return;}
     const { queue, index } = get();
     canonical = null;
     set({ queue: buildOneOffQueue(queue, index, track, source) });
@@ -529,6 +533,7 @@ export const usePlayer = create<PlayerState>()((set, get) => ({
   },
 
   togglePlay() {
+ const v=getLocalVideo();if(v){if(v.paused)void v.play();else v.pause();return;}
     // A loop mix holds both elements paused: settle it onto a playing song first.
     if (graph?.dj.loopMixing) cancelCrossfade();
     const audio = getAudio();
@@ -553,6 +558,7 @@ export const usePlayer = create<PlayerState>()((set, get) => ({
   },
 
   seek(seconds) {
+ const v=getLocalVideo();if(v){v.currentTime=Math.max(0,seconds);return;}
     const audio = getAudio();
     if (!audio) return;
     cancelCrossfade();
@@ -1130,3 +1136,5 @@ export const partyPlayer = {
 };
 
 export function desktopAudioElements(){return decks?.map(d=>d.audio)??[];}
+
+export async function shutdownPlayer(){graph?.dj.stop();for(const d of decks??[]){d.audio.pause();await d.engine.stop().catch(()=>{});d.audio.removeAttribute('src');d.audio.load();}await graph?.ctx.close().catch(()=>{});usePlayer.setState({status:'idle',nowPlaying:null});if('mediaSession'in navigator){navigator.mediaSession.metadata=null;navigator.mediaSession.playbackState='none';for(const action of ['play','pause','stop','nexttrack','previoustrack','seekto'] as MediaSessionAction[]){try{navigator.mediaSession.setActionHandler(action,null);}catch{}}}}

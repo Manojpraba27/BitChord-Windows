@@ -71,3 +71,11 @@ Download the current unsigned preview installer and portable at https://github.c
 The current auth-fix-preview uses **http://127.0.0.1:8888/callback** (replacing the earlier 43821 URI). Create a Spotify developer application, register that exact URI, and enter its public Client ID in Accounts. No Client Secret is required. Connection succeeds only after token exchange and profile verification. Setup, sanitized diagnostics and provider limitations: [docs/AUTHENTICATION.md](docs/AUTHENTICATION.md). YouTube Music remains browser-only; signing in on its website does not connect BitChord.
 
 Current account-fix downloads: https://github.com/Manojpraba27/BitChord-Windows/releases/tag/auth-fix-preview . The public Client ID is required; no valid client ID ships in the installer. See docs/AUTHENTICATION.md.
+
+## Library and player update
+
+**Close Button Behavior** now defaults to **Exit BitChord and stop playback**. Enable tray playback explicitly in Desktop Settings if desired. The tray's Quit command always exits.
+
+**Import Library** imports playlist metadata without Spotify developer credentials. Preview, optional local matching and Undo are available. Supported schemas and limits: [docs/IMPORT-LIBRARY.md](docs/IMPORT-LIBRARY.md). Imported metadata is not downloaded audio; unmatched entries cannot be played.
+
+Local video supports Fullscreen, double-click/F11 and Escape, with position preserved between local Audio/Video modes. Google profile OAuth is not configured; its account card explains the required app-owner registration and limitations rather than starting a broken redirect.

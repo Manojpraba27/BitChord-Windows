@@ -11,3 +11,11 @@ body{font-family:'Segoe UI','Nirmala UI','Noto Sans Tamil','Noto Sans Devanagari
 :root[data-reduce-motion=true] *, :root[data-reduce-motion=true] *::before,:root[data-reduce-motion=true] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 @media(prefers-reduced-transparency:reduce){.glass-material,.desktop-card,.lyrics-glass{backdrop-filter:none!important;background:var(--pageBG)!important}}
+
+.video-stage{position:relative;background:#08090e;border:1px solid #ffffff25;border-radius:18px;overflow:hidden;aspect-ratio:16/9}.video-stage video{width:100%;height:100%;object-fit:contain}.video-stage:fullscreen{width:100vw;height:100vh;aspect-ratio:auto;border:0;border-radius:0}.video-fullscreen{position:absolute;right:16px;top:12px;background:#101119dd!important;backdrop-filter:blur(12px);color:white!important;transition:opacity .2s}.video-stage[data-controls=false] .video-fullscreen{opacity:0}.video-fullscreen:focus-visible{opacity:1}
+.lyrics-glass > video{opacity:.12!important}
+.now-playing-hero{display:grid;grid-template-columns:minmax(180px,360px) 1fr;gap:36px;align-items:center;padding:24px}.now-playing-cover{width:100%;aspect-ratio:1;border-radius:24px;object-fit:cover;box-shadow:0 18px 60px #0006;background:linear-gradient(135deg,#292039,#141929)}.now-playing-hero h2{font-size:32px!important;line-height:1.15;letter-spacing:-1px}.import-preview-row{padding:10px 0;border-bottom:1px solid #8882;display:flex;gap:14px;align-items:center}.import-preview-row span{flex:1}.import-tag{font-size:11px;padding:4px 8px;border-radius:8px;background:#bc9bff20;color:var(--desktop-accent)}@media(max-width:1000px){.now-playing-hero{grid-template-columns:1fr}.now-playing-cover{max-width:320px}}
+
+.video-stage[data-fullscreen=true]{position:fixed;inset:0;z-index:100000;width:100vw;height:100vh;aspect-ratio:auto;border-radius:0;border:0}
+
+:root[data-video-fullscreen=true] .desktop-card{backdrop-filter:none!important;transform:none!important;filter:none!important}:root[data-video-fullscreen=true] nav[aria-label=Main],:root[data-video-fullscreen=true] [aria-label=Player],:root[data-video-fullscreen=true] .desktop-title{visibility:hidden}

@@ -24,6 +24,7 @@ interface PageRoute {
  * so links can warm a route's chunk on hover or focus, before the click.
  */
 export const pages: PageRoute[] = [
+{path:'/import',load:()=>import('@/desktop/ImportPage'),skeleton:<PlainSkeleton/>},
 {path:'/appearance',load:()=>import('@/desktop/AppearancePage'),skeleton:<PlainSkeleton/>},
   ...['/local','/playlists','/downloads','/desktop-settings','/integrations','/favorites','/history','/now-playing','/lyrics'].map(path => ({path,load:()=>import('@/desktop/DesktopPage'),skeleton:<PlainSkeleton/>})),
   { path: '/home', load: () => import('@/pages/HomePage'), skeleton: <HomeSkeleton /> },

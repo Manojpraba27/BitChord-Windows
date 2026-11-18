@@ -10,6 +10,7 @@ export function DesktopChrome() {
   useEffect(()=>{if(loadAppearance().dynamic&&color)document.documentElement.style.setProperty('--ambient-color',color.background);},[color]);
   useEffect(() => {
     const off = native.on("media", (cmd) => {
+      if(cmd==='shutdown'){document.documentElement.dataset.playbackShutdown='true';for(const el of document.querySelectorAll('audio,video')){(el as HTMLMediaElement).pause();el.removeAttribute('src');(el as HTMLMediaElement).load();}void import('@/state/player').then(m=>m.shutdownPlayer());if('mediaSession'in navigator){navigator.mediaSession.metadata=null;navigator.mediaSession.playbackState='none';}return;}
       const s = usePlayer.getState();
       if (cmd === "toggle") s.togglePlay();
       if (cmd === "next") s.next();
@@ -71,6 +72,7 @@ export function DesktopChrome() {
       }
     });
     const drop = (e: DragEvent) => {
+      if(location.pathname==='/import')return;
       e.preventDefault();
       const files = Array.from(e.dataTransfer?.files ?? []);
       if (files.length)

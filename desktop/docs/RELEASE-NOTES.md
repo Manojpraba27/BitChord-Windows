@@ -1,13 +1,10 @@
-# BitChord account login fix preview
+# BitChord library and player preview
 
-Official Spotify browser Authorization Code + S256 PKCE flow now verifies the exact loopback callback and OAuth state, accepts it once, validates the authorized profile before saving, binds encrypted tokens to their Client ID, serializes refresh, and supports cancellation, reconnect, disconnect, timeout and sanitized diagnostic events.
+- Close now defaults to exiting BitChord and stopping owned audio/video resources. **Close Button Behavior** offers explicit tray playback. Tray Show, Pause and Quit actions remain available. Quit follows the same shutdown path and cancels pending OAuth.
+- Import Library supports Spotify CSV/JSON playlist metadata, generic JSON, local M3U/M3U8 metadata and Title-column Google/YouTube CSV. Preview, optional unique local matching, duplicate detection, transaction rollback and persistent undo are included. Unmatched metadata is not advertised as playable audio.
+- Local video has a visible fullscreen action, double-click/F11, Escape restoration, preserved position and auto-hiding overlay. Electron window fullscreen is used for local video; native Windows multi-monitor/high-DPI behavior still needs manual acceptance.
+- Now Playing adds large artwork, playback/queue/favorite/volume/progress controls and links to the existing lyrics/full-screen experience. Lyrics backgrounds protect contrast, including bright canvas art. Existing appearance settings are retained.
+- Spotify file import needs no developer ID. Official Spotify account OAuth remains optional and requires a registered application. No valid app-owner Client ID is available.
+- Google profile OAuth is not configured. The account card explains the required registered desktop OAuth app and its limited profile-only purpose. No broken Google sign-in button or fake connected state is shown. YouTube Music account access remains browser-only.
 
-All account UI entry points now open separate Liquid Glass account cards. Spotify shows real verified status/profile, setup instructions and clear errors. YouTube Music explains its browser-only account support instead of sending users through a Google redirect that never connects BitChord.
-
-REQUIRED: Create a Spotify developer application and register http://127.0.0.1:8888/callback exactly, then enter its public Client ID. No Client Secret is used. The previous 43821 callback is not used by this build. Spotify development account eligibility and API restrictions apply.
-
-Live Spotify authorization has not been verified because no registered app/test account is available. Google OAuth does not grant YouTube Music library/playback access; this remains unsupported in BitChord. Use the official website for account listening. No security bypass or cookie import is provided.
-
-Unsigned Windows preview; manual Windows 10/11 acceptance is not complete. Full diagnosis and setup: docs/AUTHENTICATION.md.
-
-Windows build and all 185 tests passed in run https://github.com/Manojpraba27/BitChord-Windows/actions/runs/44366078178 . Both published EXEs were downloaded and SHA-256 verified. Current downloads: https://github.com/Manojpraba27/BitChord-Windows/releases/tag/auth-fix-preview .
+Unsigned Windows preview. Live Spotify/Google authorization and manual Windows 10/11 acceptance are not certified. Native automated smoke results, including any runner limitations, are recorded in TEST-REPORT.md and the release's Windows smoke logs.

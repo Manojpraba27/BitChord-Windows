@@ -1,3 +1,5 @@
+import {closeAction} from './closePolicy';
+import {previewImport,applyImport} from './importService';
 import * as spotifyOAuth from './spotifyOAuth';
 import { randomUUID } from "node:crypto";
 import { authState } from "../vendor/ytAuth";
@@ -70,9 +72,11 @@ function image() {
   return nativeImage.createFromPath(path.join(root, "icon.png"));
 }
 async function desktop(method: string, p: any) {
-  if (!p || typeof p !== "object" || JSON.stringify(p).length > 200000)
+  if (!p || typeof p !== "object" || JSON.stringify(p).length > 16*1024*1024)
     throw Error("Invalid payload");
   switch (method) {
+    case "quit":requestQuit();return;
+    case 'videoFullscreen':win.setFullScreen(p.enabled===true);return;
     case "window":
       if (p.action === "minimize") win.minimize();
       else if (p.action === "maximize")
@@ -82,7 +86,7 @@ async function desktop(method: string, p: any) {
       return;
     case "settings":
       return {
-        minimizeToTray: store.get("minimizeToTray", true),
+        minimizeToTray: store.get("closeButtonBehavior", "exit")==="tray",
         startup: app.getLoginItemSettings().openAtLogin,
         downloadFolder: store.get("downloadFolder", app.getPath("downloads")),
         libraryFolder: store.get("libraryFolder", ""),
@@ -90,18 +94,22 @@ async function desktop(method: string, p: any) {
       };
     case "setting":
       if (p.key === "minimizeToTray" && typeof p.value === "boolean")
-        store.set(p.key, p.value);
+        store.set("closeButtonBehavior",p.value?"tray":"exit");
       else if (p.key === "startup" && typeof p.value === "boolean") {
         app.setLoginItemSettings({ openAtLogin: p.value });
       } else throw Error("Unknown setting");
       return;
+    case "importPreview":return previewImport(undefined,p.match!==false);
+    case "importPreviewDropped":if(!Array.isArray(p.paths)||p.paths.length!==1)throw Error('Choose one import file');return previewImport(p.paths.map((s:any)=>text(s,4000)),p.match!==false);
+    case "importApply":return applyImport(text(p.token,100));
+    case "importUndo":return store.undoImport(text(p.id,100));
     case "library":
       return store.tracks();
     case "playlists":
       return store.playlists();
     case "savePlaylist":
-      if (!Array.isArray(p.tracks) || p.tracks.length > 1000)
-        throw Error("A playlist supports up to 1000 songs");
+      if (!Array.isArray(p.tracks) || p.tracks.length > 10000)
+        throw Error("A playlist supports up to 10000 songs");
       p.tracks.forEach(validateTrack);
       store.savePlaylist(
         p.id ? text(p.id, 100) : randomUUID(),
@@ -232,6 +240,8 @@ async function desktop(method: string, p: any) {
       throw Error("Unknown desktop command");
   }
 }
+let quitTimer:ReturnType<typeof setTimeout>|undefined;
+function requestQuit(){if(quitting)return;quitting=true;spotifyOAuth.cancel();send('media','shutdown');quitTimer=setTimeout(()=>{for(const w of BrowserWindow.getAllWindows())w.destroy();app.quit();},250);}
 function validateTrack(t: any) {
   if (!t || typeof t !== "object") throw Error("Invalid track");
   text(t.videoId, 200);
@@ -289,10 +299,9 @@ async function createWindow() {
     if (!trustedFrame(url)) e.preventDefault();
   });
   win.on("close", (e) => {
-    if (!quitting && store.get("minimizeToTray", true) && tray) {
-      e.preventDefault();
-      win.hide();
-    } else store.set("window", win.getNormalBounds());
+    if(closeAction(store.get('closeButtonBehavior','exit'),!!tray,quitting)==='hide'){e.preventDefault();win.hide();return;}
+    store.set('window',win.getNormalBounds());
+    if(!quitting){e.preventDefault();requestQuit();}
   });
   let timer: any;
   win.on("resize", () => {
@@ -427,15 +436,14 @@ else {
         tray.setToolTip("BitChord");
         tray.setContextMenu(
           Menu.buildFromTemplate([
-            { label: "Open BitChord", click: () => win.show() },
-            { label: "Play / pause", click: () => media("toggle") },
+            { label: "Show BitChord", click: () => win.show() },
+            { label: "Pause", click: () => media("pause") },
             { label: "Next", click: () => media("next") },
             { type: "separator" },
             {
               label: "Quit",
               click: () => {
-                quitting = true;
-                app.quit();
+                requestQuit();
               },
             },
           ]),
@@ -457,9 +465,7 @@ else {
         dialog.showErrorBox("BitChord could not start", String(e));
       app.exit(1);
     });
-  app.on("before-quit", () => {
-    quitting = true;
-  });
-  app.on("will-quit", () => globalShortcut.unregisterAll());
+  app.on('before-quit',e=>{if(!quitting){e.preventDefault();requestQuit();}});
+  app.on('will-quit',()=>{globalShortcut.unregisterAll();tray?.destroy();spotifyOAuth.cancel();});
   app.on("window-all-closed", () => app.quit());
 }

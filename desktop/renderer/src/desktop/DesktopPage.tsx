@@ -1,3 +1,5 @@
+import {NowPlaying} from './NowPlaying';
+import {GoogleConnection} from './GoogleConnection';
 import {YouTubeConnection} from './YouTubeConnection';
 import {MediaMode} from './MediaMode';
 import {SpotifyConnection} from './SpotifyConnection';
@@ -152,8 +154,8 @@ export default function DesktopPage() {
           {playlists.map((p) => (
             <div className="desktop-card" key={p.id}>
               <h2>{p.title}</h2><PlaylistEditor playlist={p} onSaved={()=>void refresh()}/>
-              <p>{p.tracks.length} songs</p>
-              <button
+              <p>{p.tracks.length} songs · {p.tracks.filter((t:Track)=>t.unavailable).length} unmatched metadata entries</p>
+              <button disabled={!p.tracks.some((t:Track)=>!t.unavailable)}
                 onClick={() => {
                   if (
                     p.tracks.some((t: Track) => t.videoId.startsWith("local:"))
@@ -161,20 +163,20 @@ export default function DesktopPage() {
                     usePlayer.getState().setAutomix(false);
                   usePlayer
                     .getState()
-                    .playTracks(p.tracks, 0, {
+                    .playTracks(p.tracks.filter((t:Track)=>!t.unavailable), 0, {
                       type: "playlist",
                       title: p.title,
                       id: p.id,
                     });
                 }}
               >
-                Play
+                Play matched songs
               </button>
-              <button
+              <button disabled={!p.tracks.some((t:Track)=>!t.unavailable)}
                 onClick={() =>
                   usePlayer
                     .getState()
-                    .addToQueue(p.tracks, {
+                    .addToQueue(p.tracks.filter((t:Track)=>!t.unavailable), {
                       type: "playlist",
                       title: p.title,
                       id: p.id,
@@ -389,9 +391,8 @@ export default function DesktopPage() {
       {route === "/desktop-settings" && (
         <>
           <div className="desktop-card">
-            <h2>Windows</h2>
+            <h2>Windows</h2><label>Close Button Behavior<select aria-label="Close Button Behavior" value={settings.minimizeToTray?'tray':'exit'} onChange={e=>void run(async()=>{await native.call('setting',{key:'minimizeToTray',value:e.target.value==='tray'});await refresh();})}><option value="exit">Exit BitChord and stop playback (default)</option><option value="tray">Minimize to system tray and continue playback</option></select></label>
             {[
-              ["minimizeToTray", "Close to system tray"],
               ["startup", "Launch at Windows startup"],
             ].map(([k, label]) => (
               <label className="desktop-check" key={k}>
@@ -549,6 +550,7 @@ export default function DesktopPage() {
       {route === "/integrations" && (
         <>
           <SpotifyConnection/>
+          <GoogleConnection/>
           <YouTubeConnection/>
           <div className="desktop-card">
             <h2>Discord Rich Presence</h2>
@@ -660,42 +662,7 @@ export default function DesktopPage() {
           </div>
         </>
       )}
-      {["/now-playing", "/lyrics"].includes(route) && (
-        <div className="desktop-card">
-          {current ? (
-            <>
-              <h2>{current.title}</h2><MediaMode/>
-              <p>{current.artist}</p>
-              <button onClick={() => useUi.getState().setFullScreen(true)}>
-                Open full-screen player & lyrics
-              </button>
-              <button
-                onClick={() => useUi.getState().toggleSidePanel("lyrics")}
-              >
-                Show synchronized lyrics
-              </button>
-              <button
-                onClick={() =>
-                  void run(() =>
-                    native.call("favorite", {
-                      track:
-                        usePlayer.getState().queue[usePlayer.getState().index]!
-                          .track,
-                    }),
-                  )
-                }
-              >
-                <Heart size={17} /> Favorite
-              </button>
-            </>
-          ) : (
-            <p>
-              Play a song to see artwork, playback controls and available
-              lyrics.
-            </p>
-          )}
-        </div>
-      )}
+      {["/now-playing", "/lyrics"].includes(route) && <NowPlaying/>}
     </section>
   );
 }

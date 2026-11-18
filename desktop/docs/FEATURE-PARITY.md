@@ -1,13 +1,11 @@
-# Current parity and limitations
+# Current feature parity
 
-Implemented source: Liquid Glass appearance settings and persistence; contrast-protected lyrics panel; original synchronized lyrics; multilingual OS-font fallbacks; official Spotify PKCE and API library access; explicit Google sign-in limitation; local Audio/Video controls; local artwork extraction and playlist editing; permitted direct-file downloads with progress, cancel, retry, duplicate checks and SHA-256.
+Implemented: exit-by-default close; explicit tray option; shutdown of owned renderer/media resources; local video fullscreen controls and mode-position handoff; premium Now Playing controls; lyrics contrast panel; existing appearance settings; import center with CSV/JSON/local M3U metadata, preview, optional matching, duplicate detection, atomic save and undo.
 
-Not implemented: supported YouTube Music account OAuth, DRM/offline service downloads, download pause/resume, per-song remote download URLs absent from upstream catalog, local video fullscreen custom controls beyond browser controls, precise gapless guarantees, offline scrobble retry.
+Spotify metadata import does not need developer credentials and does not download audio. Only uniquely matched local files are played from imported playlists. Spotify online OAuth requires a registered Client ID. Playlist URLs are not scraped. Broad Takeout formats beyond supported Title CSV and named JSON shapes are not implemented. M3U paths are not automatically opened.
 
-Unverified: actual Spotify account OAuth/API restrictions, local video codec behavior and switching in native Windows, live lyrics/streaming, installed Tamil/Hindi/Malayalam font coverage, Windows 10/11 visual scaling, native tray/media/taskbar behavior and install/uninstall acceptance.
+Google profile OAuth is not configured because registered credentials are unavailable. The UI explains app-owner setup; no fake sign-in flow is provided. Google profile sign-in would not unlock YouTube Music library/playback. YouTube Music signed-in listening remains browser-only.
 
-Existing Android-only Auto/widgets/Wear OS/attestation features remain outside this desktop port.
+Requires native Windows verification: actual tray icon menu behavior, multi-monitor/fullscreen and high-DPI transitions, Windows 10/11 installation/uninstallation and live account authorization. Automated Windows desktop smoke attempts are reported separately from unit tests.
 
-## Authentication fix preview
-
-Spotify callback/session/state/profile UI fixes are implemented and tested with simulated provider responses. The exact registered redirect is http://127.0.0.1:8888/callback. A real Spotify developer app/client ID and permitted account remain necessary. No live login is certified. YouTube Music account access is intentionally browser-only and never marks BitChord connected.
+Existing Android-only Auto/widgets/Wear OS/attestation features, exact gapless guarantees, download pause/resume, and service-protected offline downloads remain outside this preview.

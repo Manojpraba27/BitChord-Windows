@@ -1,3 +1,4 @@
+import {commitImported,undoImported} from './importDatabase';
 import { DatabaseSync } from "node:sqlite";
 import { app, safeStorage } from "electron";
 import path from "node:path";
@@ -124,3 +125,6 @@ export function deletePlaylist(id: string) {
 export function removeSecret(key: string) {
   db.prepare("DELETE FROM settings WHERE key=?").run("secret:" + key);
 }
+
+export function commitImport(lists:{id:string;title:string;tracks:any[]}[]){return commitImported(db,lists);}
+export function undoImport(id:string){return undoImported(db,id);}

@@ -34,7 +34,7 @@ const PRIMARY: NavItem[] = [
   { to: '/search', label: 'Search', Icon: SearchIcon },
   { to: '/home', label: 'Home', Icon: HomeIcon },
   { to: '/new', label: 'Explore', Icon: NewIcon },
- ...[['/appearance','Appearance'],['/local','Local Music'],['/playlists','My Playlists'],['/downloads','Downloads'],['/favorites','Favorites'],['/history','History'],['/now-playing','Now Playing'],['/lyrics','Lyrics'],['/integrations','Accounts']].map(([to,label])=>({to:to!,label:label!,Icon:SongsIcon})),
+ ...[['/appearance','Appearance'],['/import','Import Library'],['/local','Local Music'],['/playlists','My Playlists'],['/downloads','Downloads'],['/favorites','Favorites'],['/history','History'],['/now-playing','Now Playing'],['/lyrics','Lyrics'],['/integrations','Accounts']].map(([to,label])=>({to:to!,label:label!,Icon:SongsIcon})),
 ];
 
 const LIBRARY_ICONS: Record<Exclude<LibrarySection, 'playlists'>, NavItem['Icon']> = {
