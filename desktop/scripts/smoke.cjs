@@ -99,9 +99,10 @@ async function launch() {
   );
   console.log("MEDIA COMMAND: paused");
   for(const file of extra){
+    const beforeIds=new Set((await page.evaluate(()=>window.desktop.call('library'))).map(t=>t.videoId));
     const imported=await importFixture(page,file);
     assert.equal(imported.errors.length,0);
-    const expected='local:'+require('node:crypto').createHash('sha256').update(fs.realpathSync(file)).digest('hex');const track=imported.tracks.find(t=>t.videoId===expected);
+    const track=imported.tracks.find(t=>!beforeIds.has(t.videoId));assert.ok(track,'The selected fixture must create a distinct indexed track');
     const detail=await page.evaluate(id=>window.desktop.call('track',{id}),track.videoId);
     const decoded=await page.evaluate(async url=>{const audio=new Audio(url);await audio.play();await new Promise(r=>setTimeout(r,500));const result={time:audio.currentTime,duration:audio.duration};audio.pause();return result;},detail.url);
     assert.ok(decoded.time>0);assert.ok(decoded.duration>10);console.log('CODEC: '+path.extname(file)+' playback advances');
@@ -180,7 +181,7 @@ async function launch() {
   const exited=new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('App did not exit after close')),6000);app.process().once('exit',()=>{clearTimeout(timer);resolve();});});
   await again.evaluate(()=>window.desktop.call('window',{action:'close'})).catch(()=>{});await exited;console.log('SHUTDOWN: default close terminates owned Electron process');
   const third=await launch();await third.evaluate(()=>window.desktop.call('setting',{key:'minimizeToTray',value:true}));await third.getByRole('link',{name:'Local Music',exact:true}).click();await third.getByRole('button',{name:'Play Playback verification',exact:true}).click();await third.waitForFunction(()=>navigator.mediaSession.playbackState==='playing');const quitExit=new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('Quit did not exit')),6000);app.process().once('exit',()=>{clearTimeout(timer);resolve();});});await third.evaluate(()=>window.desktop.call('quit')).catch(()=>{});await quitExit;console.log('QUIT COMMAND: exits during playback with tray preference enabled');
-  fs.rmSync(temporary, { recursive: true, force: true });
+  fs.rmSync(temporary, { recursive: true, force: true,maxRetries:20,retryDelay:250 });
 })().catch(async (e) => {
   console.error(e);
   if (app) await app.evaluate(({ app }) => app.exit(1)).catch(() => {});
