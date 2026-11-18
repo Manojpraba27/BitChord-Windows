@@ -40,7 +40,7 @@ For a signed public release, configure your own electron-builder signing credent
 
 ## Accounts and configuration
 
-Use **Accounts** for sign-in, Discord application ID, Last.fm credentials, and ListenBrainz token. Finish provider sign-in and return to the app; Google may reject embedded sign-in in some environments. Cookies remain in the dedicated Electron account partition, never in renderer IPC responses. Last.fm/ListenBrainz credentials use Electron safeStorage (Windows DPAPI). No credentials are shipped.
+Use **Accounts** for official Spotify browser OAuth, Discord application ID, Last.fm credentials and ListenBrainz token. Spotify needs a registered public Client ID and the exact redirect shown below. Tokens use OS-encrypted storage. YouTube Music is browser-only and does not create a BitChord session. Last.fm/ListenBrainz credentials use Electron safeStorage (Windows DPAPI). No credentials are shipped.
 
 The original Listen Together page is retained. To enable it, set `VITE_PARTY_SERVER_URL=https://your-server` in `desktop/.env.local` before building and configure that server to accept the desktop origin. See `../backend/README.md`. An unconfigured server is shown as unavailable, not replaced with fake parties.
 
@@ -68,6 +68,6 @@ Download the current unsigned preview installer and portable at https://github.c
 
 ## Account login fix
 
-The current auth-fix-preview uses **http://127.0.0.1:8888/callback** (replacing the earlier 8888 URI). Create a Spotify developer application, register that exact URI, and enter its public Client ID in Accounts. No Client Secret is required. Connection succeeds only after token exchange and profile verification. Setup, sanitized diagnostics and provider limitations: [docs/AUTHENTICATION.md](docs/AUTHENTICATION.md). YouTube Music remains browser-only; signing in on its website does not connect BitChord.
+The current auth-fix-preview uses **http://127.0.0.1:8888/callback** (replacing the earlier 43821 URI). Create a Spotify developer application, register that exact URI, and enter its public Client ID in Accounts. No Client Secret is required. Connection succeeds only after token exchange and profile verification. Setup, sanitized diagnostics and provider limitations: [docs/AUTHENTICATION.md](docs/AUTHENTICATION.md). YouTube Music remains browser-only; signing in on its website does not connect BitChord.
 
 Current account-fix downloads: https://github.com/Manojpraba27/BitChord-Windows/releases/tag/auth-fix-preview . The public Client ID is required; no valid client ID ships in the installer. See docs/AUTHENTICATION.md.
