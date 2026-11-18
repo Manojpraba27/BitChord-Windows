@@ -9,3 +9,5 @@ REQUIRED: Create a Spotify developer application and register http://127.0.0.1:8
 Live Spotify authorization has not been verified because no registered app/test account is available. Google OAuth does not grant YouTube Music library/playback access; this remains unsupported in BitChord. Use the official website for account listening. No security bypass or cookie import is provided.
 
 Unsigned Windows preview; manual Windows 10/11 acceptance is not complete. Full diagnosis and setup: docs/AUTHENTICATION.md.
+
+Windows build and all 185 tests passed in run https://github.com/Manojpraba27/BitChord-Windows/actions/runs/44366078178 . Both published EXEs were downloaded and SHA-256 verified. Current downloads: https://github.com/Manojpraba27/BitChord-Windows/releases/tag/auth-fix-preview .

@@ -34,7 +34,7 @@ For a signed public release, configure your own electron-builder signing credent
 - Download manager for direct HTTPS audio files whose source permits saving; progress, cancellation, error reporting and destination selection. Files retain original source quality. Redirects and private-network sources are rejected; at most three jobs, 2 GB per file. Restarting an interrupted job requires starting it again.
 - Native window buttons, saved bounds, tray menu, close to tray, background playback, media keys, Chromium Media Session metadata, Windows taskbar actions/progress, notifications and startup setting.
 - Six-band EQ, bass shelf, playback speed, output device selection, sleep timer. EQ shares the original AutoMix audio graph; AutoMix controls speed while enabled. Local playback disables AutoMix; normal crossfade remains available. Exact gapless handoff is not guaranteed.
-- Isolated YouTube/Spotify sign-in windows; original auth/account and Spotify playlist clients. Spotify supplies catalog/playlist matching, not unrestricted Spotify audio streaming.
+- Official Spotify browser OAuth with a registered Client ID; YouTube Music account listening is browser-only. Spotify supplies catalog/playlist matching, not unrestricted Spotify audio streaming.
 - Discord desktop IPC Rich Presence using a user-supplied registered application ID, without user-token collection.
 - Last.fm browser authorization using your own registered API key/secret; ListenBrainz token validation and submissions. Scrobbling counts time spent playing and triggers after half a track or four minutes for tracks longer than 30 seconds. OS-encrypted credential storage is required. Failed submissions are reported but not queued for retry offline.
 
@@ -62,10 +62,12 @@ The desktop is based on repository commit `acf219a7e4a7f52f026d4336d5c7ac5cf7bfa
 
 ## Liquid Glass update
 
-Open **Appearance** for glass/classic light/dark/system themes, opacity, blur, accent, dynamic colors, reduced-motion/transparency, and lyrics typography/background controls. Default is Liquid Glass Dark. **Accounts → Spotify · official OAuth** requires a registered Spotify client ID and the redirect `http://127.0.0.1:43821/callback`; tokens remain in OS-encrypted storage. Google embedded sign-in is unavailable and returns an explanatory message. Consult docs/RELEASE-NOTES.md for current provider limitations.
+Open **Appearance** for glass/classic light/dark/system themes, opacity, blur, accent, dynamic colors, reduced-motion/transparency, and lyrics typography/background controls. Default is Liquid Glass Dark. **Accounts → Spotify · official OAuth** requires a registered Spotify client ID and the redirect `http://127.0.0.1:8888/callback`; tokens remain in OS-encrypted storage. Google embedded sign-in is unavailable and returns an explanatory message. Consult docs/RELEASE-NOTES.md for current provider limitations.
 
 Download the current unsigned preview installer and portable at https://github.com/Manojpraba27/BitChord-Windows/releases/tag/liquid-glass-preview . Consult docs/TEST-REPORT.md for verified results and remaining manual checks.
 
 ## Account login fix
 
-The current auth-fix-preview uses **http://127.0.0.1:8888/callback** (replacing the earlier 43821 URI). Create a Spotify developer application, register that exact URI, and enter its public Client ID in Accounts. No Client Secret is required. Connection succeeds only after token exchange and profile verification. Setup, sanitized diagnostics and provider limitations: [docs/AUTHENTICATION.md](docs/AUTHENTICATION.md). YouTube Music remains browser-only; signing in on its website does not connect BitChord.
+The current auth-fix-preview uses **http://127.0.0.1:8888/callback** (replacing the earlier 8888 URI). Create a Spotify developer application, register that exact URI, and enter its public Client ID in Accounts. No Client Secret is required. Connection succeeds only after token exchange and profile verification. Setup, sanitized diagnostics and provider limitations: [docs/AUTHENTICATION.md](docs/AUTHENTICATION.md). YouTube Music remains browser-only; signing in on its website does not connect BitChord.
+
+Current account-fix downloads: https://github.com/Manojpraba27/BitChord-Windows/releases/tag/auth-fix-preview . The public Client ID is required; no valid client ID ships in the installer. See docs/AUTHENTICATION.md.
