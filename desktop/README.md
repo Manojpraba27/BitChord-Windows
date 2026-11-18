@@ -1,6 +1,6 @@
 # BitChord for Windows
 
-Current release: [Library and Player Preview](https://github.com/Manojpraba27/BitChord-Windows/releases/tag/library-player-preview). Close exits by default; Import Library needs no developer credentials. Current verification: [TEST-REPORT.md](docs/TEST-REPORT.md).
+Current release: [Video and Playlist Link Preview](https://github.com/Manojpraba27/BitChord-Windows/releases/tag/video-link-preview). Close exits by default; Import Library needs no developer credentials. Current verification: [TEST-REPORT.md](docs/TEST-REPORT.md).
 
 A native Electron desktop port of the existing BitChord React player, with SQLite storage and Windows integration. Original Android, web and shared modules are preserved outside this directory. This is a functional port with remaining live-service and Windows validation work, not a claim of complete Android parity.
 

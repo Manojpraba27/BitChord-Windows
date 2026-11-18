@@ -13,3 +13,9 @@ Existing Android-only Auto/widgets/Wear OS/attestation features, exact gapless g
 ## Native automation completed
 
 Hosted Windows validation passed for WAV/MP3/FLAC decoding/playhead, seeking, media-command handling, imports/undo, restart persistence, close/Quit during playback, and local WebM fullscreen/Escape/F11/double-click behavior. Native tray-icon interaction, physical media keys/audio output, multiple monitors/high DPI and manual Windows 10/11 installation/uninstallation remain unverified. Google OAuth remains unconfigured, with explicit setup guidance and no fake login.
+
+## Video/link update
+
+Public Spotify links can be saved as linked playlists using official oEmbed metadata, without a developer ID; their tracks are displayed by the official Spotify iframe. This is not a local track-list import or audio download. Full authorized track-record import is a separate API option using `/playlists/{id}/items`. Private/restricted links may be unavailable.
+
+Local Audio/Video handoff restores fullscreen/navigation when changing tracks; unsupported codecs have a Windows-player fallback. Online YouTube video uses an app-owned official website/player window. Returning to Audio resumes the previous app position, not the provider's latest position. Live YouTube playback and full Spotify embed playback are not certified.
