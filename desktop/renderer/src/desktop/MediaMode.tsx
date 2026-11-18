@@ -51,7 +51,7 @@ export function MediaMode() {
       window.removeEventListener("keydown", key, true);
     };
   }, [mode, full]);
-  useEffect(()=>{if(mode!=='video'||!video.current||!pending.current)return;const v=video.current,p=pending.current;pending.current=null;setLocalVideo(v);v.src=p.url;v.volume=usePlayer.getState().muted?0:usePlayer.getState().volume;v.playbackRate=p.rate;v.onloadedmetadata=()=>{v.currentTime=p.pos;if(p.playing)void v.play().catch(()=>setError('Press Play in the video controls to start playback.'));};v.load();},[mode]);
+  useEffect(()=>{if(mode!=='video'||!video.current||!pending.current)return;const v=video.current,p=pending.current;pending.current=null;setLocalVideo(v);v.src=p.url;v.volume=usePlayer.getState().muted?0:usePlayer.getState().volume;v.playbackRate=p.rate;v.onloadedmetadata=()=>{v.currentTime=p.pos;if(!v.videoWidth){setError('This container has no supported video picture. Audio mode has been restored.');cleanup();setMode('audio');const a=getAudio();if(a){a.currentTime=p.pos;if(p.playing)void a.play().catch(()=>{});}return;}if(p.playing)void v.play().catch(()=>setError('Press Play in the video controls to start playback.'));};v.load();},[mode]);
   async function switchMode(next: "audio" | "video") {
     if (!track || next === mode) return;
     if (!track.videoId.startsWith("local:")) {
@@ -64,6 +64,7 @@ export function MediaMode() {
       const a = getAudio();
       if (next === "video") {
         const p = await native.call("track", { id: track.videoId });
+      if(!/\.(mp4|webm)$/i.test(p.track.path||'')){setError('This is an audio file. Keep Audio mode to display its artwork; choose a local MP4/WebM file for video.');return;}
         const pos = a?.currentTime || 0,
           playing = a && !a.paused;
         a?.pause();
