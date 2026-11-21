@@ -21,10 +21,13 @@ export function MediaMode({expanded=false}:{expanded?:boolean}) {
     rate: number;
   } | null>(null);
   const ownedVideo=useRef<HTMLVideoElement|null>(null);
+  const ownedPlaying=useRef(false);
+  const generation=useRef(0);
   const video = useRef<HTMLVideoElement>(null),
     surface = useRef<HTMLDivElement>(null),
     hide = useRef<ReturnType<typeof setTimeout> | null>(null);
   function cleanup(resume = false) {
+    generation.current++;
     pending.current = null;
     if (online.current) {
       const p=online.current;
@@ -39,7 +42,8 @@ export function MediaMode({expanded=false}:{expanded?:boolean}) {
     }
     const v=ownedVideo.current||video.current;ownedVideo.current=null;setLocalVideo(null);
     const position = v?.currentTime || 0,
-      playing = v && !v.paused;
+      playing = v && (!v.paused || ownedPlaying.current);
+    ownedPlaying.current=false;
     if (v) {
       v.onloadedmetadata = null;
       v.onloadeddata = null;
@@ -199,8 +203,9 @@ export function MediaMode({expanded=false}:{expanded?:boolean}) {
       const a = getAudio();
       if (next === "video") {
         const selectedId = track.videoId;
+        const selectedGeneration=generation.current;
         const p = await native.call("track", { id: selectedId });
-        if (usePlayer.getState().nowPlaying?.videoId !== selectedId) return;
+        if (generation.current!==selectedGeneration || usePlayer.getState().nowPlaying?.videoId !== selectedId) return;
         if (!/\.(mp4|webm)$/i.test(p.track.path || "")) {
           setError(
             "This is an audio file. Keep Audio mode to display its artwork; choose a local MP4/WebM file for video.",
@@ -220,7 +225,8 @@ export function MediaMode({expanded=false}:{expanded?:boolean}) {
       } else {
         const v = video.current,
           pos = v?.currentTime || 0,
-          playing = v && !v.paused;
+          playing = v && (!v.paused || ownedPlaying.current);
+        ownedPlaying.current=false;
         if (document.fullscreenElement) await document.exitFullscreen();
         cleanup();
         setMode("audio");
@@ -271,12 +277,14 @@ export function MediaMode({expanded=false}:{expanded?:boolean}) {
             preload="auto"
             onPlay={() => {
               if(!video.current||getLocalVideo()!==video.current)return;
+              ownedPlaying.current=true;
               usePlayer.setState({ status: "playing" });
               if ("mediaSession" in navigator)
                 navigator.mediaSession.playbackState = "playing";
             }}
             onPause={() => {
               if(!video.current||getLocalVideo()!==video.current)return;
+              ownedPlaying.current=false;
               usePlayer.setState({ status: "paused" });
               if ("mediaSession" in navigator)
                 navigator.mediaSession.playbackState = "paused";
