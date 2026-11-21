@@ -1,7 +1,9 @@
 # Remaining manual checks — run separately on Windows 10 and Windows 11
 
-Automated hosted Windows playback/import/close/video suites passed. The following human/device checks are still open:
+The prior video/link preview passed hosted Windows playback/import/close/video suites. Consult TEST-REPORT.md for this updated revision. The following human/device checks are still open:
 
+- [ ] Check Library statistics grow only during real playback; pause/buffer/restart and confirm persisted values. Check collapsed sidebar at desktop and narrow widths, and all new appearance settings.
+- [ ] Compare Accounts, Library, expanded player, Appearance and song menu against the five Android reference images; verify light/dark/system and large text. Android shader effects are approximated.
 - [ ] Install as a standard user; verify icon/name, Start Menu/desktop shortcuts and no unexpected administrator requirement.
 - [ ] Play music, click Close with default Exit behavior, verify sound stops and BitChord exits fully.
 - [ ] Explicitly enable tray playback; close and verify continued audio, tray Show/Pause/Quit, and complete stop on Quit.

@@ -4,7 +4,7 @@ Local production build passed. Automated suite: **207 passed** (48 Node plus 159
 
 The new Electron upgrade smoke passed for measured active playback, no listening-time growth while paused, Library rendering, sidebar collapse, appearance reload persistence, local radio unavailable state and menu favorite action. Screenshots were inspected against the supplied Library/Appearance visual direction; this is not complete five-screen pixel parity certification.
 
-Existing local audio/import/persistence/security/shutdown smoke and MP4/WebM fullscreen/mode/track-change smoke passed. Windows execution of this new revision is pending; the prior video/link revision passed hosted Windows automation and a real public oEmbed save/iframe-mount check. Neither check certifies playback inside Spotify's iframe or live YouTube playback.
+Existing local audio/import/persistence/security/shutdown smoke and MP4/WebM fullscreen/mode/track-change smoke passed. Windows build/validation run: https://github.com/Manojpraba27/BitChord-Windows/actions/runs/44928016751 (source `49bd6ac3`). Execution of this new revision is pending; the prior video/link revision passed hosted Windows automation and a real public oEmbed save/iframe-mount check. Neither check certifies playback inside Spotify's iframe or live YouTube playback.
 
 Windows 10/11 manual installation/uninstallation, physical audio/media keys, real tray interaction, high DPI/multiple displays and provider authentication remain open. No live authorized Spotify API import/account test was possible without a configured registered Client ID and permitted account.
 
