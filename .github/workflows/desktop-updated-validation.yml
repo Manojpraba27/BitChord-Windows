@@ -17,6 +17,13 @@ jobs:
           cache: npm
           cache-dependency-path: desktop/package-lock.json
       - run: npm ci
+      - run: node node_modules/electron/install.js
+      - run: npm run build
+      - name: Validate desktop upgrade behavior
+        shell: pwsh
+        run: |
+          node scripts/upgrade-smoke.cjs 2>&1 | Tee-Object windows-upgrade-smoke.log
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Download and verify our release executables
         shell: pwsh
         env:
@@ -41,4 +48,8 @@ jobs:
         if: always()
         with:
           name: updated-windows-install-validation
-          path: desktop/windows-install-smoke.log
+          path: |
+            desktop/windows-install-smoke.log
+            desktop/windows-upgrade-smoke.log
+            desktop/upgrade-library.png
+            desktop/upgrade-appearance.png
