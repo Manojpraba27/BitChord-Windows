@@ -51,4 +51,4 @@ Five Android reference screenshots inform the adaptation. No exact pixel-parity 
 
 ## Player controls fix (1.1.1)
 
-Expanded-player X and native fullscreen controls are repaired; Audio/Video controls are available in the expanded artwork/lyrics view as well as Now Playing. Local video is in-app; online video uses the official provider window with its existing limitations. Windows state/installed-app checks are reported in TEST-REPORT.md.
+Expanded-player X and native fullscreen controls are repaired; Audio/Video controls are available in the expanded artwork/lyrics view as well as Now Playing. Local video is in-app; online video uses the official provider window with its existing limitations. The real installed 1.1.1 app passed X, native fullscreen/F11/Escape, local video/audio switching and closing during video with resumed audio. Details and remaining physical/device/provider checks are in TEST-REPORT.md.
