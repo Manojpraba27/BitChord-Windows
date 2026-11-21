@@ -28,3 +28,22 @@ Implemented: collapsible persistent sidebar; Library dashboard with measured pla
 Track menus now offer local favorites, local playlist insertion, public-link sharing, queue actions, song information including available scanned codec/bitrate, 30-minute sleep timer/cancel, File Explorer and sanitized metadata logs. Dislike/account mutations, quality upgrades, conversion, protected downloads/cache removal and per-song lyrics offset remain disabled with reasons. Local artwork extraction remains bounded raster-only; rescan existing files to add new audio format metadata.
 
 Five Android reference screenshots inform the adaptation. No exact pixel-parity claim is made; native Android refraction is approximated with desktop CSS surfaces. Radio's live recommendations, provider playback/account tests, physical devices and Windows 10/11 manual acceptance remain separate from automated coverage.
+
+## Release acceptance matrix
+
+| Requested area | Current state / verification limit |
+| --- | --- |
+| Home, Explore, search, suggestions, online albums/artists | Existing upstream implementation retained; live backend availability and personalized accounts are not certified |
+| Library statistics and local favorites/playlists | New real SQLite statistics and local workflows; automated validation recorded in TEST-REPORT |
+| Library artists/albums | Preserved catalog/account pages; a separate grouped local-album/artist browser has not been added |
+| Radio | Existing song/autoplay recommendation engine exposed; local seed disabled, live recommendation availability unverified |
+| Expanded player and mini-player | Existing player retained with cover/font/blur controls; optional separate native mini-window not implemented |
+| Lyrics | Existing synchronized providers retained; external provider/translation availability unverified; per-song offset not implemented |
+| Audio controls | Existing queue/shuffle/repeat/speed/EQ/bass/output/crossfade retained; no exact gapless/bit-perfect guarantee |
+| Downloads | Permitted direct audio files only; no protected offline service downloads or pause/resume |
+| Spotify | Public playlist links + optional official PKCE API connection; no bundled developer app or live authorized account certification |
+| Google / YouTube Music | Official site listening only; no app account-library synchronization, Premium-stream entitlement or profile selection |
+| Discord / Last.fm / ListenBrainz | Existing native RPC/authorized scrobblers preserved; user configuration and live service acceptance required |
+| Window controls/tray/media/taskbar/startup | Existing native integration retained; physical keys, real tray interaction and hardware/manual display acceptance remain open |
+| Installer / portable | Both x64 packages built and SHA-256 verified; hosted Windows installer installation, packaged MP3 playback, close and uninstall passed. Portable wrapper live launch and manual Windows 10/11 acceptance remain open |
+| Android visual parity | Five references used; desktop adaptation, no claim of exact refraction/pixel parity. Home reference and newly mentioned installer ZIP were unavailable |

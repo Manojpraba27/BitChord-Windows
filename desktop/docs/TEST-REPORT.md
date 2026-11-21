@@ -1,21 +1,33 @@
-# Desktop updated preview validation
+# BitChord Desktop Updated Preview 1.1.0 — test report
 
-Local production build passed. Automated suite: **207 passed** (48 Node plus 159 Vitest), zero failures/skips. New SQLite tests check measured seconds, no duration-based estimates, top-song ordering, persistent schema initialization, invalid credits and unknown tracks.
+## Build and executable verification
 
-The new Electron upgrade smoke passed for measured active playback, no listening-time growth while paused, Library rendering, sidebar collapse, appearance reload persistence, local radio unavailable state and menu favorite action. Screenshots were inspected against the supplied Library/Appearance visual direction; this is not complete five-screen pixel parity certification.
+Windows build: https://github.com/Manojpraba27/BitChord-Windows/actions/runs/44928016751 — application source `49bd6ac3`. Both x64 NSIS installer and portable packaging completed. Downloaded files matched the Windows runner manifest and GitHub release asset digests:
 
-Existing local audio/import/persistence/security/shutdown smoke and MP4/WebM fullscreen/mode/track-change smoke passed. Windows build/validation run: https://github.com/Manojpraba27/BitChord-Windows/actions/runs/44928016751 (source `49bd6ac3`). Execution of this new revision is pending; the prior video/link revision passed hosted Windows automation and a real public oEmbed save/iframe-mount check. Neither check certifies playback inside Spotify's iframe or live YouTube playback.
+- `BitChord-Desktop-Updated-Setup.exe`: `d55a7d72a83c73e7512eafdf4d367a34c7af9da07f5304cdf86c890de97163da`
+- `BitChord-Desktop-Updated-Portable.exe`: `b99197139f934feb859a9fabadddcee744453219432c96471b9d5e7e9cd94ab9`
 
-Windows 10/11 manual installation/uninstallation, physical audio/media keys, real tray interaction, high DPI/multiple displays and provider authentication remain open. No live authorized Spotify API import/account test was possible without a configured registered Client ID and permitted account.
+The NSIS outer stub is PE32; the packaged application target is x64. Binaries are unsigned. The previous installer is preserved.
 
-## Previous video/link validation
+## Automated results
 
-# Video/link validation
+- **207 tests passed**: 48 Node tests plus 159 Vitest tests, zero failures/skips, locally and on the Windows build runner.
+- Local production build/TypeScript validation passed.
+- Local Electron upgrade smoke passed: real playback-time recording, no growth while paused, Library rendering, sidebar collapse, appearance reload persistence, local radio disabled and menu favorite.
+- Windows source-app audio/import/security/persistence/close/Quit suite: exit 0.
+- Windows WebM and H.264/AAC MP4 playback/fullscreen/Escape/F11/double-click/track-change restoration: exit 0. Old video is stopped and released while new audio continues.
+- Windows real public Spotify oEmbed → save linked playlist → official iframe mount: exit 0. This does **not** certify playback inside Spotify's iframe.
+- Initial Windows upgrade smoke hit a harness race resizing a window before creation. Waiting for firstWindow fixed it; the corrected upgrade check passed in run 44928890933.
+- That run installed and launched the actual packaged version 1.1.0 successfully, then its playback test stopped at an ambiguous Local Music selector (sidebar and Library tile). No application change was required; navigation is now scoped to the sidebar.
 
-Local production build passed. Automated suite: 204 tests passed (45 Node tests plus 159 Vitest tests), zero failures/skips. New tests validate playlist links/URIs/locale paths, hostile hosts, authorized paging, unavailable items, public oEmbed metadata without credentials, exclusion of provider HTML, link deduplication and preservation of renamed linked playlists. Provider responses in unit tests are simulated.
+Final upgrade and packaged installation/playback/close/uninstall validation: https://github.com/Manojpraba27/BitChord-Windows/actions/runs/44929197829 — **passed** (application binaries checksum-verified first). The isolated runner installed the NSIS package, launched the real packaged version 1.1.0, navigated/imported a generated MP3, verified its advancing playback position, closed during playback and confirmed the executable was removed by uninstall. The corrected Library/sidebar/appearance/favorite smoke also passed. This checks the same verified application binaries; subsequent source commits only adjust tests, workflows and documentation.
 
-Local Electron smoke checks passed for playback, imported playlists, restart persistence, shutdown and the paste-link field's explicit missing-authorization behavior. WebM and H.264/AAC MP4 smoke checks passed for local Audio/Video switching, fullscreen/Escape/F11/double-click and changing tracks while fullscreen restoring Audio mode/navigation.
+New SQLite tests cover measured seconds, no duration-derived estimates, ranking/schema persistence, invalid credits and unknown tracks. Generated MP3/FLAC/WAV/MP4/WebM fixtures contain synthetic test tones/images, not provider music. Library/Appearance screenshots show generated test data and are not an authenticated personal catalog.
 
-A real public Spotify oEmbed request succeeded through curl and returned actual playlist metadata. The local Electron public-link live-network check failed in this environment. The Windows workflow attempts the same check and reports it separately; mounting the official iframe is not certification of Spotify playback within it. No live authorized full-track import is certified, because no registered Client ID/account was supplied.
+## Provider and manual limits
 
-Online YouTube website playback is not certified here. It uses an app-owned official provider window rather than a new protected-stream extraction implementation. Native Windows 10/11 manual multi-monitor/high-DPI, physical audio/media-key, provider login/playback and installation acceptance remain outstanding.
+No live authorized Spotify API import/login test was possible without a registered Client ID and permitted account. Full Spotify player playback, live YouTube website playback, personalized catalog/account synchronization, external lyrics/translation, Discord and scrobbler end-to-end acceptance remain unverified. Google OAuth is unconfigured and does not provide YouTube Music access.
+
+Five Android screenshots informed the adaptation. Library/Appearance screenshots were reviewed, but full five-screen pixel parity and Android shader equivalence are not claimed. The newly mentioned installer ZIP and sixth/Home screenshot were unavailable; existing editable source and previous workspace installer were inspected.
+
+Hosted `windows-latest` automation is separate from consumer Windows 10/11 device acceptance. Manual installation/uninstallation, hardware audio/output/media keys, real tray interaction, multi-monitor/fullscreen/high-DPI, accessibility and live provider accounts remain open. See WINDOWS-ACCEPTANCE.md and FEATURE-PARITY.md. The portable wrapper was packaged/hash-verified; a separate live launch of the portable wrapper has not been certified.

@@ -4,6 +4,10 @@
 
 This upgrades the existing Electron/React application, with SQLite storage and Windows integrations. Android, web and shared source remain intact. Five supplied Android screenshots guide the desktop layout; this is not a claim of complete Android feature or pixel parity.
 
+## Install on Windows
+
+Download **BitChord-Desktop-Updated-Setup.exe** from the release above, run it and choose the installation folder. Launch BitChord from the Start Menu. For execution without installation, use **BitChord-Desktop-Updated-Portable.exe**. Existing profile/library data is retained; new listening statistics begin with this upgrade. Local music can be added from Local Music or by dragging files into the app.
+
 ## Build
 
 Windows x64, Node.js 24 and internet access for dependencies:

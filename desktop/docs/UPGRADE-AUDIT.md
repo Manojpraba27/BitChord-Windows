@@ -4,7 +4,7 @@
 
 The editable project is `/workspace/work/BitChord/desktop`; the Android app (`app/`), shared sources and original web project remain present. No newly uploaded `BitChord-Setup.zip` is accessible in this task. Five Android screenshots were supplied in chat (Accounts, Library, player, Appearance, song menu); no Home reference has been supplied. The installer examined is the prior workspace deliverable `deliverables/BitChord-Setup.exe`, not an assumed unseen attachment.
 
-Static `file` and 7-Zip inspection identified an NSIS Unicode installer with an embedded `app-64.7z`. Its contents include `BitChord.exe`, Chromium locale/runtime files, `resources/app.asar`, unpacked native Discord protocol modules, Electron/Chromium license notices, and an uninstaller. It was extracted for inspection, not executed. The outer NSIS stub is PE32; the enclosed application is the x64 Electron build.
+Static `file` and 7-Zip inspection identified an NSIS Unicode installer with an embedded `app-64.7z`. Its contents include `BitChord.exe`, Chromium locale/runtime files, `resources/app.asar`, unpacked native Discord protocol modules, Electron/Chromium license notices, and an uninstaller. It was extracted for inspection, not executed. Its SHA-256 is `0f9c316a821bcd56577afe3eb7d2484c6f339ec31ec9dcf85563735503fe7c46`. The outer NSIS stub is PE32; the enclosed application is the x64 Electron build.
 
 The ASAR package identifies `bitchord-desktop` version 1.0.0, Electron main entry `dist-electron/main.cjs`, bundled preload, React frontend assets, original icon, third-party notices and licenses. A square 512×512 Android app icon is reused for Windows/tray; the old wordmark is preserved. Two source maps belong to dependency packages (`content-type` and `media-typer`), not the application's frontend. This is recoverable compiled JavaScript/assets, not a complete editable TypeScript project. Source recovery is unnecessary because the full maintained source is available.
 
@@ -35,6 +35,8 @@ Upstream `https://github.com/kushagrasinghx/BitChord` is already cloned as remot
 - [x] Add persistent collapsible sidebar and Radio page reusing the existing recommendation queue.
 - [x] Expand appearance controls: font, glass/performance, progressive title blur, artwork blending, cover layouts and duration display.
 - [x] Expand track menu with native/local actions and explicit unsupported states.
+- [x] Build x64 NSIS/portable on Windows and verify downloaded SHA-256.
+- [x] Validate packaged installation, MP3 playback, close and uninstall on an isolated hosted Windows runner.
 - [ ] Complete visual and device acceptance on Windows 10 and Windows 11.
 - [ ] Certify live authorized Spotify login/import and online YouTube/Spotify provider playback.
 - [ ] Obtain missing installer ZIP and sixth/Home screenshot for exact comparison.

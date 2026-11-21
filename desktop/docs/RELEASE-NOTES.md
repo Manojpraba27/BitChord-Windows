@@ -11,6 +11,16 @@ This is an incremental upgrade of the existing Electron application. Previous in
 
 Five supplied Android screenshots informed the layout. Desktop blur approximates Android glass; exact shader/pixel parity is not claimed. See UPGRADE-AUDIT.md and FEATURE-PARITY.md for preserved architecture and limits. Live account authorization/provider playback and manual Windows 10/11 acceptance remain unverified.
 
+## Verification
+
+207 automated tests passed locally and on Windows. Existing audio/import/persistence/shutdown and MP4/WebM switching/fullscreen checks passed. The actual NSIS package was installed on an isolated hosted Windows runner; packaged MP3 playback, close and uninstall passed. Both executable SHA-256 hashes were verified. Windows Library/Appearance preview images and validation logs are attached to this release.
+
+Build: https://github.com/Manojpraba27/BitChord-Windows/actions/runs/44928016751
+
+Packaged validation: https://github.com/Manojpraba27/BitChord-Windows/actions/runs/44929197829
+
+This remains a preview with incomplete Android parity. Manual Windows 10/11 device/display acceptance, live provider authorization and protected service features are not certified.
+
 ## Previous video/link changes
 
 # Video and playlist-link preview
