@@ -47,3 +47,8 @@ Five Android reference screenshots inform the adaptation. No exact pixel-parity 
 | Window controls/tray/media/taskbar/startup | Existing native integration retained; physical keys, real tray interaction and hardware/manual display acceptance remain open |
 | Installer / portable | Both x64 packages built and SHA-256 verified; hosted Windows installer installation, packaged MP3 playback, close and uninstall passed. Portable wrapper live launch and manual Windows 10/11 acceptance remain open |
 | Android visual parity | Five references used; desktop adaptation, no claim of exact refraction/pixel parity. Home reference and newly mentioned installer ZIP were unavailable |
+
+
+## Player controls fix (1.1.1)
+
+Expanded-player X and native fullscreen controls are repaired; Audio/Video controls are available in the expanded artwork/lyrics view as well as Now Playing. Local video is in-app; online video uses the official provider window with its existing limitations. Windows state/installed-app checks are reported in TEST-REPORT.md.

@@ -11,7 +11,7 @@ contextBridge.exposeInMainWorld("desktop", {
     }),
   importPlaylistDropped:(files:File[],match=true)=>invoke('importPreviewDropped',{paths:files.map(f=>webUtils.getPathForFile(f)),match}),
   on: (name: string, fn: (data: any) => void) => {
-    if (!["media", "download", "bridge-event", "provider-video-closed"].includes(name))
+    if (!["media", "download", "bridge-event", "provider-video-closed", "window-fullscreen"].includes(name))
       throw Error("Unknown event");
     const cb = (_e: any, data: any) => fn(data);
     ipcRenderer.on(name, cb);

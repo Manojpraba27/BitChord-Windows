@@ -29,9 +29,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release download desktop-updated-preview --repo '${{ github.repository }}' --dir verified --pattern '*.exe' --pattern 'SHA256SUMS.txt'
+          gh release download player-controls-fix-preview --repo '${{ github.repository }}' --dir verified --pattern '*.exe' --pattern 'SHA256SUMS.txt'
           if ($LASTEXITCODE -ne 0) { throw 'Release download failed' }
-          foreach ($name in @('BitChord-Desktop-Updated-Setup.exe','BitChord-Desktop-Updated-Portable.exe')) {
+          foreach ($name in @('BitChord-Player-Fix-Setup.exe','BitChord-Player-Fix-Portable.exe')) {
             $line = Get-Content verified/SHA256SUMS.txt | Where-Object { $_ -match "  $([regex]::Escape($name))$" }
             if (!$line) { throw "Missing hash: $name" }
             $expected = ($line -split '\s+')[0]
@@ -42,7 +42,7 @@ jobs:
       - name: Test installation packaged playback close and uninstall
         shell: pwsh
         run: |
-          node scripts/windows-install-smoke.cjs verified/BitChord-Desktop-Updated-Setup.exe 2>&1 | Tee-Object windows-install-smoke.log
+          node scripts/windows-install-smoke.cjs verified/BitChord-Player-Fix-Setup.exe 2>&1 | Tee-Object windows-install-smoke.log
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - uses: actions/upload-artifact@v4
         if: always()
@@ -60,5 +60,5 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           foreach ($file in @('windows-install-smoke.log','windows-upgrade-smoke.log','upgrade-library.png','upgrade-appearance.png')) {
-            if (Test-Path $file) { gh release upload desktop-updated-preview $file --repo '${{ github.repository }}' --clobber }
+            if (Test-Path $file) { gh release upload player-controls-fix-preview $file --repo '${{ github.repository }}' --clobber }
           }

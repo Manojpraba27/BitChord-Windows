@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { getAudio, usePlayer } from "@/state/player";
 import { native } from "./api";
 import { setLocalVideo,getLocalVideo } from "./localVideo";
-export function MediaMode() {
+export function MediaMode({expanded=false}:{expanded?:boolean}) {
   const track = usePlayer((s) => s.nowPlaying);
   const [mode, setMode] = useState<"audio" | "video">("audio"),
     [error, setError] = useState(""),
@@ -27,7 +27,9 @@ export function MediaMode() {
   function cleanup(resume = false) {
     pending.current = null;
     if (online.current) {
+      const p=online.current;
       online.current = null;
+      if(resume&&usePlayer.getState().nowPlaying?.videoId===p.id){const a=getAudio();if(a){a.currentTime=p.position;if(p.playing)void a.play().catch(()=>{});}}
       void native.call("providerVideoClose").catch(() => {});
     }
     if (fullRef.current) {
@@ -238,8 +240,8 @@ export function MediaMode() {
     hide.current = setTimeout(() => setControls(false), 2500);
   }
   return (
-    <div className="desktop-card">
-      <div role="group" aria-label="Local playback mode">
+    <div className={expanded?"expanded-media-mode":"desktop-card"}>
+      <div role="group" aria-label="Playback mode" className="media-mode-buttons">
         {(["audio", "video"] as const).map((v) => (
           <button
             key={v}

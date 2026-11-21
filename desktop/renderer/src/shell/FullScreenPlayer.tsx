@@ -1,3 +1,5 @@
+import {native} from "@/desktop/api";
+import {MediaMode} from "@/desktop/MediaMode";
 import { Maximize, Minimize, X } from 'lucide-react';
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useLocation } from 'react-router';
@@ -159,6 +161,18 @@ export function FullScreenPlayer() {
   const [volumeOpen, setVolumeOpen] = useState(false);
   const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const browserFullScreen = useBrowserFullScreen();
+  const [nativeFullScreen,setNativeFullScreen]=useState(false);
+  const [fullscreenError,setFullscreenError]=useState('');
+  const isFullScreen=window.desktop?nativeFullScreen:browserFullScreen;
+  const nativeFullRef=useRef(false);
+  useEffect(()=>{
+    if(!window.desktop)return;
+    document.documentElement.dataset.expandedPlayer='true';
+    let live=true;
+    void native.call('windowFullscreen').then(v=>{if(live){nativeFullRef.current=v;setNativeFullScreen(v);}});
+    const off=native.on('window-fullscreen',v=>{nativeFullRef.current=!!v;setNativeFullScreen(!!v);});
+    return()=>{live=false;off();document.documentElement.dataset.expandedPlayer='false';void native.call('windowFullscreen',{enabled:false}).catch(()=>{});};
+  },[]);
   const close = useRef<HTMLButtonElement>(null);
   // Whether this player put the page in the browser's full screen, so closing it leaves it again.
   const enteredBrowserFullScreen = useRef(false);
@@ -208,6 +222,11 @@ export function FullScreenPlayer() {
   }, [nowPlaying, setFullScreen]);
 
   const toggleBrowserFullScreen = () => {
+    if(window.desktop){
+      const next=!nativeFullRef.current;
+      void native.call('windowFullscreen',{enabled:next}).then(()=>{nativeFullRef.current=next;setNativeFullScreen(next);setFullscreenError('');}).catch(()=>setFullscreenError('Fullscreen could not change. Please retry.'));
+      return;
+    }
     if (document.fullscreenElement) {
       void document.exitFullscreen();
     } else {
@@ -219,6 +238,11 @@ export function FullScreenPlayer() {
     }
   };
 
+  useEffect(()=>{
+    if(!window.desktop)return;
+    const key=(e:KeyboardEvent)=>{if(e.key==='F11'){e.preventDefault();e.stopImmediatePropagation();toggleBrowserFullScreen();}else if(e.key==='Escape'&&nativeFullRef.current){e.preventDefault();e.stopImmediatePropagation();void native.call('windowFullscreen',{enabled:false});nativeFullRef.current=false;setNativeFullScreen(false);}};
+    window.addEventListener('keydown',key,true);return()=>window.removeEventListener('keydown',key,true);
+  },[]);
   if (!nowPlaying) return null;
   const { videoId, title, artist } = nowPlaying;
   const album = track?.album ?? null;
@@ -259,18 +283,21 @@ export function FullScreenPlayer() {
       {video && (
         <VideoQuality className={`absolute top-[18px] z-1${hidden}${document.fullscreenEnabled ? ' right-15' : ' right-5'}`} />
       )}
-      {document.fullscreenEnabled && (
+      {(window.desktop || document.fullscreenEnabled) && (
         <button
           className={`${corner} top-4 right-5`}
-          aria-label={browserFullScreen ? 'Exit full screen' : 'Enter full screen'}
+          aria-label={isFullScreen ? 'Exit full screen' : 'Enter full screen'}
           onClick={toggleBrowserFullScreen}
         >
-          {browserFullScreen ? <Minimize size={18} /> : <Maximize size={18} />}
+          {isFullScreen ? <Minimize size={18} /> : <Maximize size={18} />}
         </button>
       )}
 
+      {window.desktop&&<MediaMode expanded/>}
+      {fullscreenError&&<p className="expanded-fullscreen-error" role="alert">{fullscreenError}</p>}
       {/* Apple's grid areas "controls lyrics": the artwork column, then the lyrics. */}
       <div
+        data-expanded-player-content
         className={
           theater
             ? `absolute inset-x-0 bottom-0 flex justify-center bg-[linear-gradient(to_top,rgb(0_0_0/0.72),rgb(0_0_0/0.35)_55%,transparent)] px-6 pt-32 pb-16 transition-opacity duration-300${hidden}`

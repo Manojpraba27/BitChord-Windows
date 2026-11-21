@@ -79,6 +79,7 @@ async function desktop(method: string, p: any) {
     throw Error("Invalid payload");
   switch (method) {
     case "quit":requestQuit();return;
+    case 'windowFullscreen':if(typeof p.enabled==='boolean')win.setFullScreen(p.enabled);return win.isFullScreen();
     case 'videoFullscreen':win.setFullScreen(p.enabled===true);return;
     case "window":
       if (p.action === "minimize") win.minimize();
@@ -314,6 +315,8 @@ async function createWindow() {
   win.webContents.on("will-navigate", (e, url) => {
     if (!trustedFrame(url)) e.preventDefault();
   });
+  win.on('enter-full-screen',()=>send('window-fullscreen',true));
+  win.on('leave-full-screen',()=>send('window-fullscreen',false));
   win.on("close", (e) => {
     if(closeAction(store.get('closeButtonBehavior','exit'),!!tray,quitting)==='hide'){e.preventDefault();win.hide();return;}
     store.set('window',win.getNormalBounds());

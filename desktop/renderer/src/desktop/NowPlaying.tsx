@@ -5,6 +5,7 @@ import { MediaMode } from "./MediaMode";
 import { native } from "./api";
 export function NowPlaying() {
   const s = usePlayer();
+  const expanded=useUi(s=>s.fullScreen);
   const [time, setTime] = useState(0),
     [message, setMessage] = useState("");
   useEffect(() => {
@@ -113,7 +114,7 @@ export function NowPlaying() {
           </p>
         </div>
       </div>
-      <MediaMode />
+      {!expanded&&<MediaMode />}
     </>
   );
 }

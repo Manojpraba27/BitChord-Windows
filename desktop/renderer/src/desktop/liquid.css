@@ -43,3 +43,14 @@ body{font-family:var(--desktop-font,'Segoe UI',system-ui,sans-serif)}
 :root[data-reduce-transparency=true] .desktop-title::after{display:none}
 :root[data-reduce-transparency=true] .desktop-mesh-backdrop canvas{visibility:hidden}
 .listening-card h2{line-height:1.2;padding-bottom:3px}.listening-card .desktop-eyebrow{color:#ffffffb3}.library-tiles a,.library-destinations a{color:var(--systemPrimary)}
+:root[data-expanded-player=true] .desktop-title{-webkit-app-region:no-drag;visibility:hidden}
+.desktop-expanded-player,.desktop-expanded-player button,.expanded-media-mode{-webkit-app-region:no-drag}
+.desktop-expanded-player>button{z-index:100010;pointer-events:auto;min-width:40px;min-height:40px}
+.expanded-media-mode{position:absolute;inset:64px 24px 72px;z-index:20;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:14px}
+.expanded-media-mode .media-mode-buttons{pointer-events:auto;display:flex;gap:4px;padding:4px;border:1px solid #ffffff30;border-radius:24px;background:#17171dbb;backdrop-filter:blur(12px);position:relative;z-index:100001}
+.media-mode-buttons button{border-radius:20px;padding:7px 18px;color:inherit;cursor:pointer}.media-mode-buttons button[aria-pressed=true]{background:#ffffff28}
+.expanded-media-mode .video-stage{pointer-events:auto;width:min(100%,1100px);flex:1;min-height:0;background:#08090e}
+.expanded-media-mode p[role=status]{pointer-events:auto;max-width:720px;background:#101119dd;color:#fff;padding:8px 14px;border-radius:12px;font-size:12px;position:relative;z-index:100001}
+.expanded-media-mode>div:not(.media-mode-buttons):not(.video-stage){pointer-events:auto;background:#17171de6;padding:12px;border-radius:12px}
+.desktop-expanded-player:has(.expanded-media-mode video) [data-expanded-player-content]{visibility:hidden}
+.expanded-fullscreen-error{position:absolute;top:52px;right:20px;z-index:100011;background:#291519;padding:12px}

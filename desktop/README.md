@@ -1,12 +1,12 @@
-# BitChord for Windows — Desktop Updated Preview 1.1.0
+# BitChord for Windows — Player Controls Fix 1.1.1
 
-[Download the updated preview](https://github.com/Manojpraba27/BitChord-Windows/releases/tag/desktop-updated-preview). The new files are **BitChord-Desktop-Updated-Setup.exe** and **BitChord-Desktop-Updated-Portable.exe**. Previous releases/installers are preserved. This preview is unsigned.
+[Download the updated preview](https://github.com/Manojpraba27/BitChord-Windows/releases/tag/player-controls-fix-preview). The new files are **BitChord-Player-Fix-Setup.exe** and **BitChord-Player-Fix-Portable.exe**. Previous releases/installers are preserved. This preview is unsigned.
 
 This upgrades the existing Electron/React application, with SQLite storage and Windows integrations. Android, web and shared source remain intact. Five supplied Android screenshots guide the desktop layout; this is not a claim of complete Android feature or pixel parity.
 
 ## Install on Windows
 
-Download **BitChord-Desktop-Updated-Setup.exe** from the release above, run it and choose the installation folder. Launch BitChord from the Start Menu. For execution without installation, use **BitChord-Desktop-Updated-Portable.exe**. Existing profile/library data is retained; new listening statistics begin with this upgrade. Local music can be added from Local Music or by dragging files into the app.
+Download **BitChord-Player-Fix-Setup.exe** from the release above, run it and choose the installation folder. Launch BitChord from the Start Menu. For execution without installation, use **BitChord-Player-Fix-Portable.exe**. Existing profile/library data is retained; new listening statistics begin with this upgrade. Local music can be added from Local Music or by dragging files into the app.
 
 ## Build
 
