@@ -18,3 +18,9 @@ The prior video/link preview passed hosted Windows playback/import/close/video s
 - [ ] Uninstall; verify application files are removed without deleting personal music or unexpectedly removing user data.
 
 Record OS build, app SHA-256, hardware/display setup, result and evidence. Real provider authorization is not covered by fixture-based tests.
+
+## Expanded-player regression (1.1.1)
+
+- [ ] In the artwork/lyrics player, click the top-left X using a physical mouse; verify return to the main app and continued audio.
+- [ ] Reopen; top-right fullscreen must hide the taskbar and cover the display. Test F11, Escape and closing while fullscreen; normal/maximized bounds must return.
+- [ ] Verify AUDIO/VIDEO buttons appear in this expanded view. Test local MP4/WebM switching and close during video. Test an available online YouTube song separately in its official player window; provider restrictions apply.
