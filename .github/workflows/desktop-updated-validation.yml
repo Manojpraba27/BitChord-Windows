@@ -2,7 +2,7 @@ name: Validate Updated Windows Installer
 on:
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
   installed-windows:
     runs-on: windows-latest
@@ -53,3 +53,12 @@ jobs:
             desktop/windows-upgrade-smoke.log
             desktop/upgrade-library.png
             desktop/upgrade-appearance.png
+      - name: Publish validation evidence
+        if: always()
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          foreach ($file in @('windows-install-smoke.log','windows-upgrade-smoke.log','upgrade-library.png','upgrade-appearance.png')) {
+            if (Test-Path $file) { gh release upload desktop-updated-preview $file --repo '${{ github.repository }}' --clobber }
+          }
