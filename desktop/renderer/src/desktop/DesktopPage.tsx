@@ -1,3 +1,4 @@
+import {TrackMenu} from "@/components/music/TrackMenu";
 import {SpotifyLinkedPlaylist} from './SpotifyLinkedPlaylist';
 import {NowPlaying} from './NowPlaying';
 import {GoogleConnection} from './GoogleConnection';
@@ -273,7 +274,8 @@ export default function DesktopPage() {
                       {t.album ? " · " + t.album.name : ""}
                     </small>
                   </div>
-                  <span>
+                  <TrackMenu track={t}/>
+                  <span className="total-duration">
                     {t.durationSec
                       ? `${Math.floor(t.durationSec / 60)}:${String(Math.floor(t.durationSec % 60)).padStart(2, "0")}`
                       : "—"}

@@ -10,6 +10,8 @@ Automated hosted Windows playback/import/close/video suites passed. The followin
 - [ ] Check 100%, 125%, 150% and 200% scaling; test Tamil/Hindi/Malayalam/English lyrics over bright artwork, light/dark/solid backgrounds and reduced motion/transparency.
 - [ ] Import actual Spotify CSV/Playlists.json and supported Title CSV or M3U exports; check preview, optional local matching, unmatched labels, duplicates, Undo and persistence after restart.
 - [ ] Confirm no developer ID is needed for file imports. Confirm Google profile connection remains visibly unconfigured until a registered OAuth app is implemented/configured. Official Spotify OAuth still needs a registered app and permitted account.
+- [ ] Paste a real public Spotify playlist URL in Import Library, preview and save the linked playlist, reopen it after restart and test the official Spotify player. Check restricted/private link errors. Full track-list import requires a configured authorized account.
+- [ ] Switch local Audio → Video → Audio, change tracks while fullscreen and navigate away; verify only one source plays and navigation/window bounds return. Test online YouTube window close/Audio return separately; provider restrictions may apply.
 - [ ] Verify corrupt/missing media failures are clear and do not freeze the UI.
 - [ ] Uninstall; verify application files are removed without deleting personal music or unexpectedly removing user data.
 

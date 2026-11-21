@@ -1,5 +1,14 @@
 export const defaults = {
   theme: "glass-dark",
+  font: "system",
+  glass: true,
+  performanceGlass: false,
+  progressiveBlur: true,
+  blend: true,
+  fullCover: false,
+  fullDetailCover: false,
+  showDuration: true,
+  sidebarCollapsed: false,
   transparency: 82,
   blur: 20,
   dynamic: true,
@@ -30,9 +39,17 @@ export function applyAppearance(p = loadAppearance()) {
       : p.theme.endsWith("light")
         ? "light"
         : "dark";
-  r.dataset.glass = String(p.theme.startsWith("glass"));
+  r.dataset.glass = String(p.glass && (p.theme.startsWith("glass") || p.theme === "system"));
   r.dataset.reduceMotion = String(p.reducedMotion);
   r.dataset.reduceTransparency = String(p.reducedTransparency);
+  r.dataset.performanceGlass = String(p.performanceGlass);
+  r.dataset.progressiveBlur = String(p.progressiveBlur);
+  r.dataset.blend = String(p.blend);
+  r.dataset.fullDetailCover = String(p.fullDetailCover);
+  r.dataset.fullCover = String(p.fullCover);
+  r.dataset.showDuration = String(p.showDuration);
+  r.dataset.sidebarCollapsed = String(p.sidebarCollapsed);
+  r.style.setProperty('--desktop-font', p.font === 'serif' ? 'Georgia, serif' : p.font === 'rounded' ? '"Trebuchet MS", "Segoe UI", sans-serif' : '"Segoe UI", "Nirmala UI", system-ui, sans-serif');
   r.dataset.lyricsTheme = p.lyricsTheme;
   r.dataset.solidLyrics = String(p.solidLyrics);
   r.style.setProperty("--glass-opacity", String(p.transparency / 100));

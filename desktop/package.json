@@ -49,7 +49,7 @@
     "youtubei.js": "^18.1.0",
     "zustand": "^5.0.15"
   },
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "BitChord Music Player for Windows",
   "author": "BitChord contributors",
   "license": "AGPL-3.0-only",
@@ -66,7 +66,8 @@
       "icon.png",
       "LICENSE",
       "THIRD_PARTY_NOTICES.md",
-      "licenses/**"
+      "licenses/**",
+      "windows-icon.png"
     ],
     "asar": true,
     "win": {
@@ -74,15 +75,16 @@
         "nsis",
         "portable"
       ],
-      "artifactName": "BitChord-${version}-${arch}.${ext}"
+      "artifactName": "BitChord-${version}-${arch}.${ext}",
+      "icon": "windows-icon.png"
     },
     "nsis": {
-      "artifactName": "BitChord-Setup.exe",
+      "artifactName": "BitChord-Desktop-Updated-Setup.exe",
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
     },
     "portable": {
-      "artifactName": "BitChord-Portable.exe"
+      "artifactName": "BitChord-Desktop-Updated-Portable.exe"
     }
   },
   "repository": {

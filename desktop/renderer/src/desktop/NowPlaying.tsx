@@ -67,9 +67,9 @@ export function NowPlaying() {
           </label>
           <p>
             {Math.floor(time / 60)}:
-            {String(Math.floor(time % 60)).padStart(2, "0")} /{" "}
+            {String(Math.floor(time % 60)).padStart(2, "0")}<span className="total-duration"> /{" "}
             {Math.floor(track.durationSec / 60)}:
-            {String(Math.floor(track.durationSec % 60)).padStart(2, "0")}
+            {String(Math.floor(track.durationSec % 60)).padStart(2, "0")}</span>
           </p>
           <label>
             Volume

@@ -1,3 +1,4 @@
+import {loadAppearance} from "@/desktop/appearance";
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { GRID, meshPalette, type Rgb } from '@/lib/meshPalette';
 
@@ -204,15 +205,20 @@ function canvasRenderer(canvas: HTMLCanvasElement): Renderer | null {
 export function MeshBackdrop({ artworkUrl, playing }: { artworkUrl: string | null; playing: boolean }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const still = useReducedMotion();
-  const animate = playing && !still;
+  const [appearance,setAppearance]=useState(loadAppearance);
+  useEffect(()=>{const update=()=>setAppearance(loadAppearance());window.addEventListener('appearance-changed',update);return()=>window.removeEventListener('appearance-changed',update);},[]);
+  const animate = playing && !still && !appearance.reducedMotion && !!appearance.motion && !appearance.performanceGlass;
   // A lost WebGL context remounts the canvas, which starts over with a fresh one.
   const [generation, setGeneration] = useState(0);
-  const [fallback, setFallback] = useState(false);
+  const [fallback, setFallback] = useState(appearance.performanceGlass);
+  useEffect(()=>setFallback(appearance.performanceGlass),[appearance.performanceGlass]);
   // Kept outside React: the frame loop reads and writes these.
   const state = useRef({ from: FALLBACK, to: FALLBACK, fadeStart: -Infinity, seconds: 0, wake: () => {} });
 
   useEffect(() => {
-    if (!artworkUrl) return;
+    if (!artworkUrl || !appearance.dynamic || !appearance.blend) {
+      state.current.from=FALLBACK;state.current.to=FALLBACK;state.current.fadeStart=-Infinity;state.current.wake();return;
+    }
     let live = true;
     meshPalette(artworkUrl)
       .then((cells) => {
@@ -231,7 +237,7 @@ export function MeshBackdrop({ artworkUrl, playing }: { artworkUrl: string | nul
     return () => {
       live = false;
     };
-  }, [artworkUrl]);
+  }, [artworkUrl,appearance.dynamic,appearance.blend]);
 
   useEffect(() => {
     const el = canvas.current;
@@ -283,7 +289,7 @@ export function MeshBackdrop({ artworkUrl, playing }: { artworkUrl: string | nul
   }, [animate, generation, fallback]);
 
   return (
-    <div className={backdrop} aria-hidden="true" data-fallback={fallback || undefined}>
+    <div className={"desktop-mesh-backdrop "+backdrop} aria-hidden="true" data-fallback={fallback || undefined}>
       {/* Drawn at the screen's size by WebGL; the 2D fallback is a 64×40 canvas stretched. */}
       <canvas key={`${generation}-${fallback}`} ref={canvas} className="absolute inset-0 size-full" />
     </div>

@@ -35,6 +35,9 @@ export default function AppearancePage() {
             ))}
           </select>
         </label>
+        <label>Font<select aria-label="Font" value={p.font} onChange={e=>change('font', e.target.value)}>
+          <option value="system">Windows system</option><option value="rounded">Rounded</option><option value="serif">Serif</option>
+        </select></label>
         {[
           ["transparency", "Glass opacity", 60, 100],
           ["blur", "Backdrop blur", 0, 32],
@@ -61,8 +64,15 @@ export default function AppearancePage() {
         </label>
         {[
           ["dynamic", "Dynamic album colors"],
+          ["glass", "Liquid Glass"],
+          ["performanceGlass", "Better performance for Glass"],
+          ["progressiveBlur", "Progressive Blur"],
+          ["blend", "Artwork blend effects"],
+          ["fullCover", "Full-screen cover art"],
+          ["fullDetailCover", "Full-screen album/playlist cover"],
+          ["showDuration", "Show total duration"],
           ["reducedMotion", "Reduce motion"],
-          ["reducedTransparency", "Reduce transparency"],
+          ["reducedTransparency", "Reduce dynamic blur"],
         ].map(([k, label]) => (
           <label className="desktop-check" key={k}>
             <input

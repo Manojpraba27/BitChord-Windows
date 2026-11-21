@@ -1,3 +1,4 @@
+import {TrackActions} from "@/desktop/TrackActions";
 import { ChevronLeft, ChevronRight, ListEnd, ListPlus, ListStart, MoreHorizontal, Star } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { Menu, MenuHeader, MenuItem, MenuSeparator, type MenuPlacement } from '@/components/Menu';
@@ -79,6 +80,7 @@ function AccountItems({ track, onClose, onPlaylists }: { track: Track; onClose: 
 function TrackMenuItems({ track, onClose }: { track: Track; onClose: () => void }) {
   const [view, setView] = useState<'main' | 'playlists'>('main');
   const signedIn = useSignedIn();
+  if(window.desktop)return <TrackActions track={track} onClose={onClose}/>;
   if (view === 'playlists') {
     return <PlaylistChoices videoId={track.videoId} onDone={onClose} onBack={() => setView('main')} />;
   }

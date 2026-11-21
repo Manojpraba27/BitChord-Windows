@@ -1,3 +1,4 @@
+import {initListening,startListening,creditListening,listeningStats} from "./listening";
 import {commitImported,undoImported,saveLinkedPlaylist} from './importDatabase';
 import { DatabaseSync } from "node:sqlite";
 import { app, safeStorage } from "electron";
@@ -12,6 +13,7 @@ export function initStore() {
  CREATE TABLE IF NOT EXISTS playlist_links(id TEXT PRIMARY KEY,url TEXT NOT NULL);
  CREATE TABLE IF NOT EXISTS playlists(id TEXT PRIMARY KEY,title TEXT NOT NULL,data TEXT NOT NULL);
  CREATE TABLE IF NOT EXISTS downloads(id TEXT PRIMARY KEY,data TEXT NOT NULL);`);
+  initListening(db);
 }
 export function get(key: string, fallback: any = null): any {
   const row = db.prepare("SELECT value FROM settings WHERE key=?").get(key);
@@ -59,6 +61,7 @@ export function tracks(): any[] {
     .map((r) => JSON.parse(String(r.data)));
 }
 export function record(data: any) {
+  startListening(db,data);
   db.prepare("INSERT INTO history(played,data) VALUES(?,?)").run(
     Date.now(),
     JSON.stringify(data),
@@ -133,3 +136,6 @@ export function commitImport(lists:{id:string;title:string;tracks:any[]}[]){retu
 export function undoImport(id:string){return undoImported(db,id);}
 
 export function saveSpotifyLink(item:{id:string;title:string;sourceUrl:string}){return saveLinkedPlaylist(db,item);}
+
+export function statistics(){return listeningStats(db);}
+export function listeningTick(id:string,seconds:number){creditListening(db,id,seconds);}

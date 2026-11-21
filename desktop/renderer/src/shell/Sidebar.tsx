@@ -1,4 +1,6 @@
-import { ArrowUpRight, ListMusic, Settings } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { loadAppearance, saveAppearance } from '@/desktop/appearance';
+import { ArrowUpRight, ListMusic, Settings, PanelLeftClose, PanelLeftOpen, Radio, Palette, FolderOpen, Download, Heart, Clock, Play, Mic2, UserRound, Import } from 'lucide-react';
 import { MdOutlineExtension } from 'react-icons/md';
 import { PrefetchLink, PrefetchNavLink } from '@/components/PrefetchLink';
 import { LogoMark } from '@/components/icons/LogoMark';
@@ -34,7 +36,10 @@ const PRIMARY: NavItem[] = [
   { to: '/search', label: 'Search', Icon: SearchIcon },
   { to: '/home', label: 'Home', Icon: HomeIcon },
   { to: '/new', label: 'Explore', Icon: NewIcon },
- ...[['/appearance','Appearance'],['/import','Import Library'],['/local','Local Music'],['/playlists','My Playlists'],['/downloads','Downloads'],['/favorites','Favorites'],['/history','History'],['/now-playing','Now Playing'],['/lyrics','Lyrics'],['/integrations','Accounts']].map(([to,label])=>({to:to!,label:label!,Icon:SongsIcon})),
+  { to: '/radio', label: 'Radio', Icon: p=><Radio size={p.size} className={p.className}/> },
+  { to: '/collection', label: 'Library', Icon: AllPlaylistsIcon },
+  { to: '/spotify', label: 'Spotify', Icon: AllPlaylistsIcon },
+ ...([['/appearance','Appearance',Palette],['/import','Import Library',Import],['/local','Local Music',FolderOpen],['/playlists','My Playlists',ListMusic],['/downloads','Downloads',Download],['/favorites','Favorites',Heart],['/history','History',Clock],['/now-playing','Now Playing',Play],['/lyrics','Lyrics',Mic2],['/integrations','Accounts',UserRound]] as const).map(([to,label,Glyph])=>({to,label,Icon:(p:NavIconProps)=><Glyph size={p.size} className={p.className}/>})),
 ];
 
 const LIBRARY_ICONS: Record<Exclude<LibrarySection, 'playlists'>, NavItem['Icon']> = {
@@ -66,7 +71,7 @@ function NavList({ items, onNavigate }: { items: NavItem[]; onNavigate: () => vo
     <ul className={list}>
       {items.map(({ to, label, Icon }) => (
         <li key={to}>
-          <PrefetchNavLink to={to} className={item} onClick={onNavigate}>
+          <PrefetchNavLink to={to} title={label} aria-label={label} className={item} onClick={onNavigate}>
             <Icon size={24} className={icon} />
             <span className={navLabel}>{label}</span>
           </PrefetchNavLink>
@@ -136,6 +141,8 @@ function SpotifyNav({ onNavigate }: { onNavigate: () => void }) {
 
 /** The left glass sidebar (report §1). */
 export function Sidebar() {
+  const [collapsed,setCollapsed]=useState(()=>loadAppearance().sidebarCollapsed);
+  useEffect(()=>{const update=()=>setCollapsed(loadAppearance().sidebarCollapsed);window.addEventListener('appearance-changed',update);return()=>window.removeEventListener('appearance-changed',update);},[]);
   const drawerOpen = useUi((s) => s.drawerOpen);
   const setDrawerOpen = useUi((s) => s.setDrawerOpen);
   const update = useExtensionUpdate();
@@ -155,9 +162,10 @@ export function Sidebar() {
           <PrefetchLink to="/home" className="inline-flex items-center gap-2 rounded-[6px]" aria-label="BitChord, Home" onClick={close}>
             {/* White on dark, as Apple's own wordmark; it follows the label colour so it stays visible in light. */}
             <LogoMark size={22} className="text-primary" />
-            <span className="type-[700_19px/24px] tracking-[-0.01em]">BitChord</span>
+            <span className="sidebar-wordmark type-[700_19px/24px] tracking-[-0.01em]">BitChord</span>
           </PrefetchLink>
         </div>
+        <button className="sidebar-collapse" aria-label={collapsed?'Expand sidebar':'Collapse sidebar'} aria-expanded={!collapsed} onClick={()=>saveAppearance({...loadAppearance(),sidebarCollapsed:!collapsed})}>{collapsed?<PanelLeftOpen size={20}/>:<PanelLeftClose size={20}/>}</button>
         <div className="min-h-0 flex-1 overflow-y-auto pr-3 pl-5 [scrollbar-width:none]">
           <NavList items={PRIMARY} onNavigate={close} />
           <LibraryNav onNavigate={close} />

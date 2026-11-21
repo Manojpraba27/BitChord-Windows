@@ -30,6 +30,7 @@ export async function importFiles(files: string[]) {
       const meta = await parseFile(file, { skipCovers: false });
       store.saveTrack(id, file, {
         videoId: id,
+        audioInfo: [meta.format.codec,meta.format.sampleRate?`${meta.format.sampleRate/1000} kHz`:null,meta.format.bitrate?`${Math.round(meta.format.bitrate/1000)} kbps`:null,meta.format.numberOfChannels?`${meta.format.numberOfChannels} channels`:null].filter(Boolean).join(' · '),
         title: meta.common.title || path.basename(file, path.extname(file)),
         artists: [{ name: meta.common.artist || "Unknown artist", id: null }],
         album: meta.common.album ? { name: meta.common.album, id: null } : null,

@@ -71,8 +71,9 @@ function media(command: string) {
   send("media", command);
 }
 function image() {
-  return nativeImage.createFromPath(path.join(root, "icon.png"));
+  return nativeImage.createFromPath(path.join(root, "windows-icon.png"));
 }
+let lastListeningTick=performance.now();
 async function desktop(method: string, p: any) {
   if (!p || typeof p !== "object" || JSON.stringify(p).length > 16*1024*1024)
     throw Error("Invalid payload");
@@ -167,6 +168,12 @@ async function desktop(method: string, p: any) {
       shell.showItemInFolder(t.path);
       return;
     }
+    case "statistics":return store.statistics();
+    case "listeningTick": {
+      const now=performance.now(),elapsed=(now-lastListeningTick)/1000;lastListeningTick=now;
+      if(!Number.isFinite(p.seconds)||p.seconds<=0||p.seconds>2.5)throw Error('Invalid listening interval');
+      store.listeningTick(text(p.id,100),Math.min(p.seconds,Math.max(0.001,elapsed),2));return;
+    }
     case "history":
       return store.history();
     case "record":
@@ -241,7 +248,7 @@ async function desktop(method: string, p: any) {
         new Notification({
           title: p.track.title,
           body: p.track.artists.map((a: any) => a.name).join(", "),
-          icon: path.join(root, "icon.png"),
+          icon: path.join(root, "windows-icon.png"),
         }).show();
       return;
     default:

@@ -19,3 +19,12 @@ Hosted Windows validation passed for WAV/MP3/FLAC decoding/playhead, seeking, me
 Public Spotify links can be saved as linked playlists using official oEmbed metadata, without a developer ID; their tracks are displayed by the official Spotify iframe. This is not a local track-list import or audio download. Full authorized track-record import is a separate API option using `/playlists/{id}/items`. Private/restricted links may be unavailable.
 
 Local Audio/Video handoff restores fullscreen/navigation when changing tracks; unsupported codecs have a Windows-player fallback. Online YouTube video uses an app-owned official website/player window. Returning to Audio resumes the previous app position, not the provider's latest position. Live YouTube playback and full Spotify embed playback are not certified.
+
+
+## Desktop updated preview (1.1.0)
+
+Implemented: collapsible persistent sidebar; Library dashboard with measured playback seconds, starts and top songs since this upgrade (no inferred historical minutes); local favorite/new playlist/import tiles; Radio page reusing existing online autoplay recommendations (local seeds disabled); Windows/system, rounded and serif fonts; independent Liquid Glass toggle and lower-blur performance mode; progressive title blur; artwork blend toggle; expanded player/detail-cover layouts; duration display toggle.
+
+Track menus now offer local favorites, local playlist insertion, public-link sharing, queue actions, song information including available scanned codec/bitrate, 30-minute sleep timer/cancel, File Explorer and sanitized metadata logs. Dislike/account mutations, quality upgrades, conversion, protected downloads/cache removal and per-song lyrics offset remain disabled with reasons. Local artwork extraction remains bounded raster-only; rescan existing files to add new audio format metadata.
+
+Five Android reference screenshots inform the adaptation. No exact pixel-parity claim is made; native Android refraction is approximated with desktop CSS surfaces. Radio's live recommendations, provider playback/account tests, physical devices and Windows 10/11 manual acceptance remain separate from automated coverage.

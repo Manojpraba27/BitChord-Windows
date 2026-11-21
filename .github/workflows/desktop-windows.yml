@@ -48,15 +48,18 @@ jobs:
           node scripts/video-smoke.cjs 2>&1 | Tee-Object -FilePath windows-video-smoke.log -Append
           $mp4Result = $LASTEXITCODE
           if ($mp4Result -ne 0) { $videoResult = $mp4Result }
+          node scripts/upgrade-smoke.cjs 2>&1 | Tee-Object -FilePath windows-upgrade-smoke.log
+          $upgradeResult = $LASTEXITCODE
+          "Desktop upgrade smoke exit code: $upgradeResult" | Set-Content windows-upgrade-status.txt
           node scripts/public-link-smoke.cjs 2>&1 | Tee-Object -FilePath windows-public-link.log
           $linkResult = $LASTEXITCODE
           "Public Spotify link smoke exit code: $linkResult" | Set-Content windows-public-link-status.txt
           "Audio/import/close smoke exit code: $audioResult; video/fullscreen smoke exit code: $videoResult" | Set-Content windows-smoke-status.txt
-          if ($audioResult -ne 0 -or $videoResult -ne 0) { exit 1 }
+          if ($audioResult -ne 0 -or $videoResult -ne 0 -or $upgradeResult -ne 0) { exit 1 }
       - name: Verify executables and create checksums
         shell: pwsh
         run: |
-          $names = @('BitChord-Portable.exe', 'BitChord-Setup.exe')
+          $names = @('BitChord-Desktop-Updated-Portable.exe', 'BitChord-Desktop-Updated-Setup.exe')
           $lines = foreach ($name in $names) {
             $file = Join-Path 'release' $name
             if (!(Test-Path $file) -or (Get-Item $file).Length -lt 1MB) { throw "Missing or incomplete executable: $name" }
@@ -68,8 +71,8 @@ jobs:
         with:
           name: BitChord-Windows-x64
           path: |
-            desktop/release/BitChord-Setup.exe
-            desktop/release/BitChord-Portable.exe
+            desktop/release/BitChord-Desktop-Updated-Setup.exe
+            desktop/release/BitChord-Desktop-Updated-Portable.exe
             desktop/release/SHA256SUMS.txt
           if-no-files-found: error
 
@@ -80,14 +83,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $repo = '${{ github.repository }}'
-          $tag = 'video-link-preview'
+          $tag = 'desktop-updated-preview'
           gh release view $tag --repo $repo 2>$null
           if ($LASTEXITCODE -ne 0) {
-            gh release create $tag --repo $repo --target '${{ github.sha }}' --title 'BitChord Video and Playlist Link Preview' --prerelease --notes 'Unsigned preview. Native Windows manual acceptance and real provider integrations remain unverified. See source documentation for limitations.'
+            gh release create $tag --repo $repo --target '${{ github.sha }}' --title 'BitChord Desktop Updated Preview' --prerelease --notes 'Unsigned preview. Native Windows manual acceptance and real provider integrations remain unverified. See source documentation for limitations.'
           }
-          foreach ($log in @('windows-smoke.log','windows-video-smoke.log','windows-smoke-status.txt','windows-public-link.log','windows-public-link-status.txt')) { if (Test-Path $log) { gh release upload $tag $log --repo $repo --clobber } }
+          foreach ($log in @('windows-upgrade-smoke.log','windows-upgrade-status.txt','windows-smoke.log','windows-video-smoke.log','windows-smoke-status.txt','windows-public-link.log','windows-public-link-status.txt')) { if (Test-Path $log) { gh release upload $tag $log --repo $repo --clobber } }
           if (Test-Path windows-build.log) { gh release upload $tag windows-build.log --repo $repo --clobber }
           if (Test-Path release/SHA256SUMS.txt) {
-            gh release upload $tag release/BitChord-Portable.exe release/BitChord-Setup.exe release/SHA256SUMS.txt --repo $repo --clobber
+            gh release upload $tag release/BitChord-Desktop-Updated-Portable.exe release/BitChord-Desktop-Updated-Setup.exe release/SHA256SUMS.txt --repo $repo --clobber
             if ($LASTEXITCODE -ne 0) { throw 'Release upload failed' }
           }

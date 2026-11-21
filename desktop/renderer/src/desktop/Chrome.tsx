@@ -2,6 +2,8 @@ import {useArtworkColor} from '@/lib/artworkColor';
 import {loadAppearance} from './appearance';
 import { useEffect, useState } from "react";
 import { native } from "./api";
+import { getLocalVideo } from "./localVideo";
+import { getAudio } from "@/state/player";
 import { usePlayer } from "@/state/player";
 import { applyAudio } from "./audio";
 export function DesktopChrome() {
@@ -21,7 +23,9 @@ export function DesktopChrome() {
       started = 0,
       seconds = 0,
       sent = false,
-      lastTick = Date.now();
+      lastTick = Date.now(),
+      lastMediaTime = 0,
+      lastMediaId = "";
     const timer = setInterval(() => {
       const s = usePlayer.getState(),
         track = s.queue[s.index]?.track,
@@ -51,6 +55,11 @@ export function DesktopChrome() {
             .catch((e) => setError(String(e)));
         }
       }
+      const active=getLocalVideo()||getAudio();
+      if(track && active && !active.paused && !active.ended && active.readyState>=2 && track.videoId===lastMediaId && active.currentTime>lastMediaTime){
+        void native.call('listeningTick',{id:track.videoId,seconds:Math.min(2,(now-lastTick)/1000)}).catch(()=>{});
+      }
+      lastMediaId=track?.videoId||'';lastMediaTime=active?.currentTime||0;
       lastTick = now;
     }, 1000);
     const unsub = usePlayer.subscribe((s, old) => {
