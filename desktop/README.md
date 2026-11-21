@@ -1,93 +1,59 @@
-# BitChord for Windows
+# BitChord for Windows — Desktop Updated Preview 1.1.0
 
-Current release: [Desktop Updated Preview](https://github.com/Manojpraba27/BitChord-Windows/releases/tag/desktop-updated-preview). Close exits by default; Import Library needs no developer credentials. Current verification: [TEST-REPORT.md](docs/TEST-REPORT.md).
+[Download the updated preview](https://github.com/Manojpraba27/BitChord-Windows/releases/tag/desktop-updated-preview). The new files are **BitChord-Desktop-Updated-Setup.exe** and **BitChord-Desktop-Updated-Portable.exe**. Previous releases/installers are preserved. This preview is unsigned.
 
-A native Electron desktop port of the existing BitChord React player, with SQLite storage and Windows integration. Original Android, web and shared modules are preserved outside this directory. This is a functional port with remaining live-service and Windows validation work, not a claim of complete Android parity.
+This upgrades the existing Electron/React application, with SQLite storage and Windows integrations. Android, web and shared source remain intact. Five supplied Android screenshots guide the desktop layout; this is not a claim of complete Android feature or pixel parity.
 
-See [upgrade audit](docs/UPGRADE-AUDIT.md) for installer inspection, preserved architecture and feature limits. Version 1.1.0 uses `BitChord-Desktop-Updated-Setup.exe` and `BitChord-Desktop-Updated-Portable.exe`; earlier installers are preserved.
+## Build
 
-## Build and run
-
-Windows 10/11 x64, Node.js 24 LTS, npm and Internet access for dependencies:
+Windows x64, Node.js 24 and internet access for dependencies:
 
 ```powershell
 cd desktop
 npm ci
 node node_modules/electron/install.js
+npm test
 npm run build
 npm start
-```
-
-Electron 45's binary installer is an explicit step; its npm package may not automatically download the runtime. `npm run build` checks the renderer with TypeScript, bundles the original React app with Vite, and bundles the Electron main/preload processes with esbuild.
-
-```powershell
-npm test
 npm run dist:win
 ```
 
-Outputs: `release/BitChord-Setup.exe` and `release/BitChord-Portable.exe`. The repository includes `.github/workflows/desktop-windows.yml`; run **Build BitChord for Windows** in GitHub Actions to reproduce the Windows build. This workflow was added locally, not pushed or executed on GitHub.
+Outputs are in `desktop/release/`. The existing **Build BitChord for Windows** workflow runs on `windows-latest`, builds NSIS and portable targets, runs automated checks, uploads artifacts and publishes a preview. Configure your own electron-builder signing credentials for a signed release. Portable execution keeps its profile under the standard user-data directory; it is not a self-contained USB profile.
 
-For a signed public release, configure your own electron-builder signing credentials in CI. The supplied cross-built portable binary is unsigned. The setup installer and portable build now complete successfully on the Windows GitHub Actions runner. The portable executable runs without installation but keeps its database/settings in the standard user-data directory; it is not a self-contained USB profile.
+## Current features
 
-## What is implemented
+- Preserved upstream home/explore/search, suggestions, catalog pages, online recommendation queue, synchronized lyrics/providers, artwork colors, floating player and expanded player. Service availability and account restrictions still apply; live provider certification is incomplete.
+- Local MP3/FLAC/WAV/M4A/AAC/Ogg/Opus and MP4/WebM import, raster artwork extraction, metadata, recursive scanning, drag-and-drop, byte-range playback and File Explorer reveal. Codec support depends on file encoding. Rescan existing files to add codec/bitrate metadata.
+- SQLite library/history/favorites/playlists and persistent settings. Library shows measured app listening time and top songs since this upgrade; it does not estimate historical minutes or count external Spotify/YouTube website playback.
+- Android-inspired listening cards, playlist tiles, collapsible sidebar, light/dark/system themes, font choices, Liquid Glass/performance options, cover layouts, duration display and readable lyrics controls. CSS surfaces approximate Android glass rather than duplicating its refractive shader.
+- Track options: local favorites, local playlist insertion, share public song link, radio for available online seeds, queue, song info, sleep timer, File Explorer and sanitized metadata log. Unsupported provider/conversion/download/cache/offset actions are disabled with reasons.
+- Local Audio/Video switching with fullscreen/Escape/F11/double-click. Online video opens an app-owned official YouTube window; Audio resumes the app position saved before switching, not YouTube's latest position.
+- EQ/bass, speed, device selection, crossfade and preserved AutoMix. AutoMix controls speed when enabled; local playback disables it. Exact gapless, bit-perfect and lossless output guarantees are not made.
+- Native title buttons, saved bounds, optional tray/background playback, media shortcuts, Chromium Media Session, taskbar actions/progress, notifications and startup preference. Close exits by default; enable tray playback explicitly in Desktop Settings.
+- Direct HTTPS audio downloads where permitted, progress/cancellation/retry/folder choice. Original source quality is preserved. No protected YouTube/Spotify downloads or transcoding; 3 jobs / 2 GB per file, no pause/resume.
 
-- Original online home, search/suggestions, explore, albums, artists, playlists, signed-in library and favorites, recommendations, shuffle/repeat, queue editing and crossfade.
-- Original artwork color extraction/animations, light/dark themes, floating player, full-screen player, synchronized line/word lyrics and inherited providers/translation where available.
-- Local MP3/FLAC/WAV/M4A/AAC/Ogg/Opus import, metadata, recursive folder scanning, drag-and-drop, byte-range playback, queue integration and File Explorer reveal. Actual decoder support depends on the file codec, not just its extension.
-- SQLite local library, history, favorites, local playlists, settings and download records. Save a current queue on **My Playlists**, including local and online tracks.
-- Download manager for direct HTTPS audio files whose source permits saving; progress, cancellation, error reporting and destination selection. Files retain original source quality. Redirects and private-network sources are rejected; at most three jobs, 2 GB per file. Restarting an interrupted job requires starting it again.
-- Native window buttons, saved bounds, tray menu, close to tray, background playback, media keys, Chromium Media Session metadata, Windows taskbar actions/progress, notifications and startup setting.
-- Six-band EQ, bass shelf, playback speed, output device selection, sleep timer. EQ shares the original AutoMix audio graph; AutoMix controls speed while enabled. Local playback disables AutoMix; normal crossfade remains available. Exact gapless handoff is not guaranteed.
-- Official Spotify browser OAuth with a registered Client ID; YouTube Music account listening is browser-only. Spotify supplies catalog/playlist matching, not unrestricted Spotify audio streaming.
-- Discord desktop IPC Rich Presence using a user-supplied registered application ID, without user-token collection.
-- Last.fm browser authorization using your own registered API key/secret; ListenBrainz token validation and submissions. Scrobbling counts time spent playing and triggers after half a track or four minutes for tracks longer than 30 seconds. OS-encrypted credential storage is required. Failed submissions are reported but not queued for retry offline.
+## Spotify playlist links
 
-## Accounts and configuration
+**Import Library → paste URL → Preview public link (no developer ID) → Save linked playlist → My Playlists → Open Spotify player.** This reads official public metadata and displays Spotify's official embed. It saves a provider link, not downloaded audio or a full local track list. Provider login, availability and playback restrictions apply; BitChord's transport does not control the iframe.
 
-Use **Accounts** for official Spotify browser OAuth, Discord application ID, Last.fm credentials and ListenBrainz token. Spotify needs a registered public Client ID and the exact redirect shown below. Tokens use OS-encrypted storage. YouTube Music is browser-only and does not create a BitChord session. Last.fm/ListenBrainz credentials use Electron safeStorage (Windows DPAPI). No credentials are shipped.
+The separate **Import track list (connected account)** option uses Spotify's official playlist-items API, then previews and optionally matches local files. It requires a registered Spotify Client ID and authorized permitted account. CSV/JSON/local M3U metadata import needs no developer credentials; unmatched records are not playable audio. See [import details](docs/IMPORT-LIBRARY.md).
 
-The original Listen Together page is retained. To enable it, set `VITE_PARTY_SERVER_URL=https://your-server` in `desktop/.env.local` before building and configure that server to accept the desktop origin. See `../backend/README.md`. An unconfigured server is shown as unavailable, not replaced with fake parties.
+## Accounts
 
-## Keyboard controls
+Spotify uses official Authorization Code with PKCE in the system browser. Register exactly `http://127.0.0.1:8888/callback` and enter the public Client ID in Accounts; never embed a secret. No Client ID ships in the app. See [authentication setup](docs/AUTHENTICATION.md).
 
-Space: play/pause. Ctrl+Left/Right: previous/next. Ctrl+Up/Down: volume. Ctrl+F or `/`: search. Escape: close full-screen/side panel. Hardware media keys work through Electron when registration succeeds. Windows native tray/taskbar/media behavior still needs testing on Windows.
+YouTube Music account listening remains browser-only. A Google profile login does not provide YouTube Music libraries, Premium streams or playback permissions. No cookie extraction, fake connected state or security bypass is provided.
 
-## Storage and security
+Discord Rich Presence requires your registered application ID and running Discord desktop. Last.fm uses your registered API credentials/browser authorization; ListenBrainz uses your user token. Credentials are encrypted by Electron safeStorage (Windows DPAPI); plaintext fallback is rejected. No credentials ship in the app. Live provider/scrobbler certification remains open.
 
-Data lives in Electron's per-user BitChord directory (`%APPDATA%` on Windows); `bitchord.sqlite` contains the desktop library/settings. Existing web state/cache uses the Chromium profile. Images use Chromium's disk cache; lyrics and analysis retain upstream caches. Back up the user-data directory to preserve your library.
+The preserved Listen Together feature requires a configured `VITE_PARTY_SERVER_URL` and compatible server; see `../backend/README.md`.
 
-The renderer has no Node integration, uses context isolation and sandboxing, and receives a fixed preload API. Main validates the calling window/frame/origin and command payloads. Files are streamed only by database ID; path traversal and invalid ranges are rejected. The custom app protocol has CSP; `unsafe-eval` is retained because the inherited YouTube player deciphering/BotGuard code requires it. Web security is not globally disabled. External account windows have no preload or Node access. Provider request hosts are restricted by the inherited clients. Download DNS is validated and pinned to a public IPv4 address.
+## Security and storage
 
-## Validation and remaining work
+Back up BitChord's user-data directory under `%APPDATA%` to preserve the SQLite library and Chromium state. Renderer Node integration is off; context isolation and sandboxing are on. Main validates IPC sender/frame and payloads. Local media uses database IDs rather than arbitrary renderer paths. CSP retains `unsafe-eval` for inherited provider deciphering; web security is not globally disabled. External account/player windows have no preload/Node access. Download DNS is validated and pinned to public IPv4 addresses.
 
-See [docs/TESTING.md](docs/TESTING.md) for actual results and Windows acceptance checks. Live YouTube streaming, authenticated libraries/Spotify, external lyric providers, scrobblers, permitted remote downloads and native Windows controls have not been end-to-end certified in this Linux environment. No fake music catalog or fallback demo data is shipped. Network failures remain visible in the existing error states.
+## Validation, acceptance and attribution
 
-The desktop is based on repository commit `acf219a7e4a7f52f026d4336d5c7ac5cf7bfafcc`; the original ZIP could not be accessed due to its size. Architecture/migration notes: [docs/ANALYSIS.md](docs/ANALYSIS.md). Licenses and inherited asset caveats: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Current evidence: [TEST-REPORT.md](docs/TEST-REPORT.md). Architecture/installer inspection: [UPGRADE-AUDIT.md](docs/UPGRADE-AUDIT.md). Feature limits: [FEATURE-PARITY.md](docs/FEATURE-PARITY.md). Remaining manual device/installation tests: [WINDOWS-ACCEPTANCE.md](docs/WINDOWS-ACCEPTANCE.md).
 
-## Liquid Glass update
-
-Open **Appearance** for glass/classic light/dark/system themes, opacity, blur, accent, dynamic colors, reduced-motion/transparency, and lyrics typography/background controls. Default is Liquid Glass Dark. **Accounts → Spotify · official OAuth** requires a registered Spotify client ID and the redirect `http://127.0.0.1:8888/callback`; tokens remain in OS-encrypted storage. Google embedded sign-in is unavailable and returns an explanatory message. Consult docs/RELEASE-NOTES.md for current provider limitations.
-
-Download the current unsigned preview installer and portable at https://github.com/Manojpraba27/BitChord-Windows/releases/tag/liquid-glass-preview . Consult docs/TEST-REPORT.md for verified results and remaining manual checks.
-
-## Account login fix
-
-The current auth-fix-preview uses **http://127.0.0.1:8888/callback** (replacing the earlier 43821 URI). Create a Spotify developer application, register that exact URI, and enter its public Client ID in Accounts. No Client Secret is required. Connection succeeds only after token exchange and profile verification. Setup, sanitized diagnostics and provider limitations: [docs/AUTHENTICATION.md](docs/AUTHENTICATION.md). YouTube Music remains browser-only; signing in on its website does not connect BitChord.
-
-Current account-fix downloads: https://github.com/Manojpraba27/BitChord-Windows/releases/tag/auth-fix-preview . The public Client ID is required; no valid client ID ships in the installer. See docs/AUTHENTICATION.md.
-
-## Library and player update
-
-**Close Button Behavior** now defaults to **Exit BitChord and stop playback**. Enable tray playback explicitly in Desktop Settings if desired. The tray's Quit command always exits.
-
-**Import Library** imports playlist metadata without Spotify developer credentials. Preview, optional local matching and Undo are available. Supported schemas and limits: [docs/IMPORT-LIBRARY.md](docs/IMPORT-LIBRARY.md). Imported metadata is not downloaded audio; unmatched entries cannot be played.
-
-Local video supports Fullscreen, double-click/F11 and Escape, with position preserved between local Audio/Video modes. Google profile OAuth is not configured; its account card explains the required app-owner registration and limitations rather than starting a broken redirect.
-
-## Video/link update
-
-Use the Audio/Video controls on Now Playing. Local MP4/WebM files switch in the app; online YouTube video opens in an app-owned official-player window. Returning to Audio resumes the app's saved position. Unsupported local codecs offer a Windows-player fallback. Paste Spotify playlist URLs in Import Library; full track import requires an authorized Spotify API connection. File import remains credential-free.
-
-## Paste a public Spotify link without a developer ID
-
-Open Import Library → paste link → Preview public link (no developer ID) → Save linked playlist. Open My Playlists → Open Spotify player. This uses official public metadata and the official Spotify embed, with provider playback restrictions. It saves a link rather than downloading/importing songs. The separate full track-list import button requires an authorized API connection.
+The desktop began at upstream `acf219a7`; current upstream was fetched/read for comparison without replacing Android/web source. Original icon/branding and licensing notices are retained. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and [LICENSE](LICENSE).

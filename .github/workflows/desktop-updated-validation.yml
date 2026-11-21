@@ -1,0 +1,44 @@
+name: Validate Updated Windows Installer
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  installed-windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: desktop
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+      - run: npm ci
+      - name: Download and verify our release executables
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download desktop-updated-preview --repo '${{ github.repository }}' --dir verified --pattern '*.exe' --pattern 'SHA256SUMS.txt'
+          if ($LASTEXITCODE -ne 0) { throw 'Release download failed' }
+          foreach ($name in @('BitChord-Desktop-Updated-Setup.exe','BitChord-Desktop-Updated-Portable.exe')) {
+            $line = Get-Content verified/SHA256SUMS.txt | Where-Object { $_ -match "  $([regex]::Escape($name))$" }
+            if (!$line) { throw "Missing hash: $name" }
+            $expected = ($line -split '\s+')[0]
+            $actual = (Get-FileHash (Join-Path verified $name) -Algorithm SHA256).Hash.ToLower()
+            if ($actual -ne $expected) { throw "Checksum mismatch: $name" }
+            Write-Output "SHA256 verified: $name"
+          }
+      - name: Test installation packaged playback close and uninstall
+        shell: pwsh
+        run: |
+          node scripts/windows-install-smoke.cjs verified/BitChord-Desktop-Updated-Setup.exe 2>&1 | Tee-Object windows-install-smoke.log
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: updated-windows-install-validation
+          path: desktop/windows-install-smoke.log
